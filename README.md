@@ -1,7 +1,7 @@
 # Post Office System
 ### *This project is still in progress*
 
-A post office system, designed for use by post office empoyee. It's a window application carried out using the assumptions of object-oriented programming in C++ and implemented using * [Qt Framework](https://github.com/qt). 
+A post office system, designed for use by post office empoyee. It's a window application carried out using the assumptions of object-oriented programming in C++ and implemented using [Qt Framework](https://github.com/qt). 
 
 **Functionalities offered by the application:**
 - sending letter/ parcel;
