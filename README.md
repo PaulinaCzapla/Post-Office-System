@@ -20,11 +20,11 @@ A post office system, designed for use by post office empoyee. It's a window app
 - project supports .txt and .csv files.
 
 
-##### Main menu
+### Main menu
 ![image](https://user-images.githubusercontent.com/56382779/114763789-7da1a200-9d63-11eb-9422-24ed3b36abf7.png)
 
 
-##### Shipment type form
+### Shipment type form
 
 ![image](https://user-images.githubusercontent.com/56382779/114763821-898d6400-9d63-11eb-91c2-ae9bccc26387.png)
 
@@ -34,9 +34,9 @@ A post office system, designed for use by post office empoyee. It's a window app
 
 
 
-##### Personal data form
+### Personal data form
 ![image](https://user-images.githubusercontent.com/56382779/114763924-a4f86f00-9d63-11eb-91c5-d582478a33c2.png)
 
-##### Browsing main database
+### Browsing main database
 ![image](https://user-images.githubusercontent.com/56382779/114764091-d1ac8680-9d63-11eb-90ff-e04621783d49.png)
 
