@@ -4,15 +4,16 @@
 #include <QDebug>
 #include "database.h"
 #include "shipmenttypeinfo.h"
+#include <QString>
+#include <QStringList>
+#include <QVector>
+#include <list>
 using namespace DataInfo;
 
 
 /* tworzony jest obiekt Shipment* currentShipment oraz obiekt  SkipmentType */
-ShipmentType* ShipmentFormWidget::saveComboBoxInfo(std::map<shipmentTypeInfo,QComboBox *> &comboBoxes)
+void ShipmentFormWidget::createShipmentType(bool prevLetter)
 {
-
-    bool prevLetter = false;
-    /* wykorzystanie RTTI */
     if(currentShipment)
     {
     if(typeid(*currentShipment).name()==typeid (Letter).name())
@@ -34,6 +35,14 @@ ShipmentType* ShipmentFormWidget::saveComboBoxInfo(std::map<shipmentTypeInfo,QCo
             }
     }
     }
+}
+
+ShipmentType* ShipmentFormWidget::saveComboBoxInfo(std::map<shipmentTypeInfo,QComboBox *> &comboBoxes)
+{
+
+    bool prevLetter = false;
+    /* wykorzystanie RTTI */
+    createShipmentType(prevLetter);
 
     //wykorzystanie wyrażenia lambda
     auto isPriority_ = [](std::string reg){ if(reg=="priorytetowa") return true; else return false;};
@@ -140,7 +149,7 @@ void ShipmentFormWidget::loadDataToComboBoxes(std::map<shipmentTypeInfo,QComboBo
      comboBoxes[weight]->addItem("2 - 5 kg");
      comboBoxes[weight]->addItem("5 - 10 kg");
      comboBoxes[weight]->addItem("10+ kg");
-     comboBoxes[country]->addItem("PL");
+     loadCountriesToComboBox(comboBoxes[country]);
     }
     if(comboBoxes[type]->currentIndex()==0)
     {
@@ -179,6 +188,30 @@ void ShipmentFormWidget::loadDataToComboBoxes(std::map<shipmentTypeInfo,QComboBo
          comboBoxes[size]->addItem("A");
          comboBoxes[size]->addItem("B");
      }
+}
+
+void ShipmentFormWidget::loadCountriesToComboBox(QComboBox *& comboBoxCountries)
+{
+    std::fstream file;
+    file.open("validatorpostcode.txt", std::ios::in);
+    std::string tmp="", country = "";
+
+    std::vector<QString> countries;
+
+     if (file.is_open() && file.good())
+     {
+          while (!file.eof())
+         {
+             file>>country;
+             countries.push_back(QString::fromStdString(country));
+             getline(file, tmp, '\n');
+         }
+
+          sortAlphabetically<QString>(countries);
+          comboBoxCountries->addItems(QStringList::fromVector(QVector<QString>::fromStdVector(countries)));
+          comboBoxCountries->setCurrentText("POL");
+      }
+    file.close();
 }
 
 std::pair<std::vector<dataInfo>*, std::vector<dataInfo>*>* ShipmentFormWidget::processFormData(std::map<dataInfo, std::string> & sender,
@@ -242,6 +275,7 @@ void ShipmentFormWidget::insertRecord(std::map<dataInfo, std::string> & sender, 
    delete currentShipment; //usuwam kopię
     currentShipment = nullptr;
 }
+
 
 ShipmentFormWidget::~ShipmentFormWidget()
 {

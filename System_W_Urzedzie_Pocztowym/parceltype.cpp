@@ -14,7 +14,6 @@ ParcelType::ParcelType(ParcelType * other)
     isPriority = other->isPriority;
     size = other->size;
     price = other->price;
-    country = other->country;
     minWeight = other->minWeight;
     maxWeight = other->maxWeight;
 }
@@ -39,7 +38,6 @@ ParcelType &ParcelType::operator=(const ParcelType & other)
     isPriority = other.isPriority;
     size = other.size;
     price = other.price;
-    country = other.country;
     minWeight = other.minWeight;
     maxWeight = other.maxWeight;
     return *this;

@@ -30,6 +30,7 @@ SOURCES += \
     shipmentstatus.cpp \
     shipmentstatusmanager.cpp \
     shipmenttype.cpp \
+    sorter.cpp \
     validator.cpp
 
 HEADERS += \
@@ -55,6 +56,7 @@ HEADERS += \
     shipmentstatusmanager.h \
     shipmenttype.h \
     shipmenttypeinfo.h \
+    sorter.h \
     validator.h
 
 FORMS += \

@@ -40,18 +40,15 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete shipmentForm;
-    delete localDatabaseWidget;
-    delete mainDatabaseWidget;
-    delete shipmentPricesManager;
-    delete localDatabase;
-    delete mainDatabase;
+
 }
 
 void MainWindow::on_pushButtonRegisterParcel_clicked()
 {
     qDebug() << "register";
 
+    auto comboBoxes = getFormDataFromComboBoxes();
+    shipmentForm->loadDataToComboBoxes(comboBoxes);
     ui->comboBoxShipmentType->setCurrentIndex(0);
 
     setDefaultLineEdits();
@@ -85,7 +82,14 @@ void MainWindow::closeEvent (QCloseEvent *event)
     if(ret==QMessageBox::Ok)
     {
         saveDatabase();
+        delete shipmentForm;
+        delete localDatabaseWidget;
+        delete mainDatabaseWidget;
+        delete shipmentPricesManager;
+        delete localDatabase;
+        delete mainDatabase;
          event->accept();
+
         exit(1);
     }
     if(ret==QMessageBox::Cancel)
@@ -119,6 +123,7 @@ std::map<shipmentTypeInfo,QComboBox *> MainWindow::getFormDataFromComboBoxes()
     comboBoxes.insert(std::pair<shipmentTypeInfo, QComboBox*>(weight, ui->comboBoxWeight));
     comboBoxes.insert(std::pair<shipmentTypeInfo, QComboBox*>(country, ui->comboBoxCountry));
 
+    shipmentForm->loadDataToComboBoxes(comboBoxes);
     return comboBoxes;
 }
 
@@ -376,7 +381,7 @@ void MainWindow::adjustTable(QTableWidget *&tab)
   tab->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-//do przeniesienia
+//do przeniesienia i refaktoryzacji
 void MainWindow::loadTable(List<Letter> * lettersList, List<Parcel> * parcelsList,QTableWidget *& tab)
 {
     int i =0, j =0;
