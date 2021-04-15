@@ -12,7 +12,7 @@ public:
     ParcelType (ParcelType* );
     ParcelType(ParcelType& other) { *this = other;};
     ParcelType(bool, char, int, int, float);
-    ParcelType(bool, char, int, int, std::string = "PL");
+    ParcelType(bool, char, int, int, std::string);
     inline int getMaxWeight() {return maxWeight;};
     inline int getMinWeight() {return minWeight;};
     void display() {};

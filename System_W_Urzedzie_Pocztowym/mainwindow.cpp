@@ -121,7 +121,7 @@ std::map<shipmentTypeInfo,QComboBox *> MainWindow::getFormDataFromComboBoxes()
     comboBoxes.insert(std::pair<shipmentTypeInfo, QComboBox*>(isPriority, ui->comboBoxPriority));
     comboBoxes.insert(std::pair<shipmentTypeInfo, QComboBox*>(shipmentTypeInfo::size, ui->comboBoxSize));
     comboBoxes.insert(std::pair<shipmentTypeInfo, QComboBox*>(weight, ui->comboBoxWeight));
-    comboBoxes.insert(std::pair<shipmentTypeInfo, QComboBox*>(country, ui->comboBoxCountry));
+    comboBoxes.insert(std::pair<shipmentTypeInfo, QComboBox*>(shipmentTypeInfo::country, ui->comboBoxCountry));
 
     shipmentForm->loadDataToComboBoxes(comboBoxes);
     return comboBoxes;
@@ -179,6 +179,7 @@ void MainWindow::getFormData(std::map<dataInfo, std::string> & sender, std::map<
     sender.insert(std::pair<dataInfo, std::string>(houseNumber ,ui->lineEdit_SenderHouseNum->text().toStdString()));
     sender.insert(std::pair<dataInfo, std::string>(postCode ,ui->lineEdit_SenderPostCode->text().toStdString()));
     sender.insert(std::pair<dataInfo, std::string>(city ,ui->lineEdit_SenderTown->text().toStdString()));
+ //   sender.insert(std::pair<dataInfo, std::string>(dataInfo::country ,"POL"));
 
     recipient.insert(std::pair<dataInfo, std::string>(name ,ui->lineEdit_RecipientName->text().toStdString()));
     recipient.insert(std::pair<dataInfo, std::string>(phoneNumber,ui->lineEdit_RecipientPhone->text().toStdString()));
@@ -186,6 +187,7 @@ void MainWindow::getFormData(std::map<dataInfo, std::string> & sender, std::map<
     recipient.insert(std::pair<dataInfo, std::string>(houseNumber ,ui->lineEdit_RecipientHouseNum->text().toStdString()));
     recipient.insert(std::pair<dataInfo, std::string>(postCode ,ui->lineEdit_RecipientPostCode->text().toStdString()));
     recipient.insert(std::pair<dataInfo, std::string>(city ,ui->lineEdit_RecipientTown->text().toStdString()));
+   // recipient.insert(std::pair<dataInfo, std::string>(dataInfo::country ,ui->comboBoxCountry->currentText().toStdString()));
 }
 
 //mozna przeniesc
@@ -234,7 +236,7 @@ void MainWindow::checkInvalidData(std::pair<std::vector<dataInfo> *, std::vector
               ui->lineEdit_RecipientStreet->clear();
               ui->lineEdit_RecipientStreet->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
           }
-          if(*it == postCode) //zawsze POL
+          if(*it == postCode)
           {
               ui->lineEdit_RecipientPostCode->clear();
               ui->lineEdit_RecipientPostCode->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
@@ -299,7 +301,7 @@ void MainWindow::on_pushButtonConfirm_Page2_clicked()
     getFormData(sender, recipient);
 
     //para wektorów przechowująca informacje o niepoprawnych danych
-    std::pair<std::vector<dataInfo>*, std::vector<dataInfo>*>* invalidData = shipmentForm->processFormData(sender, recipient);
+    std::pair<std::vector<dataInfo>*, std::vector<dataInfo>*>* invalidData = shipmentForm->processFormData(sender, recipient, ui->comboBoxCountry->currentText().toStdString());
 
     //warunek dla nieprawidłowych danych w formularzu
     if(!invalidData->first->empty() || !invalidData->second->empty())

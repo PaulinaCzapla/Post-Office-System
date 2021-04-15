@@ -27,8 +27,8 @@ public:
     void loadDataToComboBoxes(std::map<shipmentTypeInfo,QComboBox *>&);
     void loadCountriesToComboBox(QComboBox*&);
     void clearComboBoxes(std::map<shipmentTypeInfo,QComboBox *>&);
-    std::pair<std::vector<dataInfo>*, std::vector<dataInfo>*>* processFormData(std::map<dataInfo, std::string> &, std::map<dataInfo, std::string> &);
-    std::vector<dataInfo>* validatePersonalData(std::map<dataInfo, std::string> &);
+    std::pair<std::vector<dataInfo>*, std::vector<dataInfo>*>* processFormData(std::map<dataInfo, std::string> &, std::map<dataInfo, std::string> &, std::string);
+    std::vector<dataInfo>* validatePersonalData(std::map<dataInfo, std::string> &,std::string );
     void insertRecord(std::map<dataInfo, std::string>&, std::map<dataInfo, std::string>&, Database*, Database*);
 
     //void sortAlphabetically(std::list<std::string>&);

@@ -12,7 +12,7 @@ public:
     LetterType(LetterType*);
     LetterType(LetterType& other) { *this = other;};
     LetterType(bool, char, bool, float);
-    LetterType(bool, char, bool, std::string = "PL");
+    LetterType(bool, char, bool, std::string);
     inline bool getIsRegistered() { return isRegistered;};
     void display() {};
     void setIsRegistered(bool other) {isRegistered = other; };

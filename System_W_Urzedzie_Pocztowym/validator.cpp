@@ -41,7 +41,6 @@ void Validator::readFileValidator()
     std::fstream file;
     file.open(FILENAME_VALIDATOR, std::ios::in);
 
-
     dataInfo dataType;
     std::string s = "", pattern="";
 
@@ -56,8 +55,6 @@ void Validator::readFileValidator()
                  dataType = street;
                  else if(s=="name")
                  dataType = name;
-                 else if(s=="POLcode")
-                 dataType=postCode;
                  else if(s=="housenum")
                  dataType=houseNumber;
                  else if(s=="phone")
@@ -85,8 +82,9 @@ void Validator::readFileValidatorPostCode()
         {
              while (!file.eof())
             {
-                file>>country>>pattern;
-
+                file>>country;
+                getline(file, pattern);
+                pattern.erase(0,1);
                 postCodePatterns.insert(std::pair<std::string, std::string>(country,pattern));
                 pattern = "";
                 country = "";

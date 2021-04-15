@@ -5,6 +5,24 @@ ShipmentPrices::ShipmentPrices()
 {
     readFileLetterPrices();
     readFileParcelPrices();
+    readFileForeignPrices();
+}
+
+void ShipmentPrices::readFileForeignPrices()
+{
+    std::fstream file;
+    file.open(FILENAME_FOREIGN_SHIPMENTS, std::ios::in);
+    std::string country = "";
+    float price=0;
+    if (file.is_open() && file.good())
+    {
+         while (!file.eof())
+        {
+            file>>country>>price;
+            foreignShipments.insert(std::pair<std::string, float>(country,price));
+        }
+     }
+   file.close();
 }
 
 void ShipmentPrices::readFileLetterPrices()
@@ -60,6 +78,11 @@ QString ShipmentPrices::returnProperPrice(float p)
     return result;
 }
 
+float ShipmentPrices::getAdditionalPrice(std::string country)
+{
+    return foreignShipments[country];
+}
+
 //RTTI
 
 float ShipmentPrices::getShipmentPrice(ShipmentType* type)
@@ -68,13 +91,13 @@ float ShipmentPrices::getShipmentPrice(ShipmentType* type)
     {
        auto parcelType= dynamic_cast<ParcelType*>(type);
        auto found = parcelTypes.getElement(*parcelType);
-       return found->getCurrentData().getPrice();
+       return found->getCurrentData().getPrice() + getAdditionalPrice(type->getCountry());
 
     } else if (typeid(*type).name()==typeid (LetterType).name())
     {
         auto letterType= dynamic_cast<LetterType*>(type);
         auto found = letterTypes.getElement(*letterType);
-        return found->getCurrentData().getPrice();
+        return found->getCurrentData().getPrice()+ getAdditionalPrice(type->getCountry());
     }
     return 0;
 }

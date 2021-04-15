@@ -10,7 +10,8 @@ enum dataInfo
     houseNumber,
     name,
     postCode,
-    phoneNumber
+    phoneNumber,
+    country
 };
 
 }
