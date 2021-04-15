@@ -1,6 +1,7 @@
 #include "database.h"
 #include "date.h"
 #include <string>
+#include <QDebug>
 
 #define FILENAME_LOCAL_DATABASE "localdatabase.csv"
 #define FILENAME_MAIN_DATABASE "maindatabase.csv"
@@ -210,13 +211,16 @@ void Database::writeFile()
 {
     std::fstream file;
     file.open(filename, std::ios::out);
-
+    bool isFirst = 1;
     if (file.is_open() && file.good())
     {
         auto headLetters = letters->getHead();
 
             while (headLetters)
             {
+                if(!isFirst)
+                    file<<"\n";
+
                 auto type = headLetters->getCurrentData().getType();
                 file<<"letter;"<<type->getIsPriority()<<';'<<type->getIsRegistered()<<';'<<type->getSize()<<'\n';
 
@@ -224,22 +228,36 @@ void Database::writeFile()
                 file<<sender->getName()<<';'<<sender->getPhoneNumber()<<';'<<sender->getPostCode()<<';'<<sender->getStreet()<<';'
                    <<sender->getHouseNumber()<<';'<<sender->getCity()<<';'<<sender->getCountry()<<'\n';
 
-                auto recipent = headLetters->getCurrentData().getSender();
+                auto recipent = headLetters->getCurrentData().getRecipient();
                 file<<recipent->getName()<<';'<<recipent->getPhoneNumber()<<';'<<recipent->getPostCode()<<';'<<recipent->getStreet()<<';'
                 <<recipent->getHouseNumber()<<';'<<recipent->getCity()<<';'<<recipent->getCountry()<<'\n';
 
-                file<<headLetters->getCurrentData().getPostDate()->dateToString()<<';'<<headLetters->getCurrentData().getdateOfReceipt()->dateToString()<<';'
-                   <<headLetters->getCurrentData().getfinalDateOfReceiptAtTheFacility()->dateToString()<<'\n';
+
+                file<<headLetters->getCurrentData().getPostDate()->dateToString()<<';';
+
+                if(headLetters->getCurrentData().getdateOfReceipt())
+                file<<headLetters->getCurrentData().getdateOfReceipt()->dateToString()<<';';
+                else
+                    file <<"-;";
+
+                if(headLetters->getCurrentData().getfinalDateOfReceiptAtTheFacility())
+                file<<headLetters->getCurrentData().getfinalDateOfReceiptAtTheFacility()->dateToString()<<'\n';
+                else
+                    file <<"-\n";
 
                 file<<headLetters->getCurrentData().getStatus()<<';'<<headLetters->getCurrentData().getStringID();
 
-                headLetters = headLetters->getNext();
+                headLetters = headLetters->getNext(); 
+                isFirst = 0;
             }
 
             auto headParcels = parcels->getHead();
 
                 while (headParcels)
                 {
+                    if(!isFirst)
+                        file<<"\n";
+
                     auto type = headParcels->getCurrentData().getType();
                     file<<"parcel;"<<type->getIsPriority()<<';'<<type->getSize()<<';'<<type->getMinWeight()<<';'<<type->getMaxWeight()<<'\n';
 
@@ -247,29 +265,40 @@ void Database::writeFile()
                     file<<sender->getName()<<';'<<sender->getPhoneNumber()<<';'<<sender->getPostCode()<<';'<<sender->getStreet()<<';'
                        <<sender->getHouseNumber()<<';'<<sender->getCity()<<';'<<sender->getCountry()<<'\n';
 
-                    auto recipent = headParcels->getCurrentData().getSender();
+                    auto recipent = headParcels->getCurrentData().getRecipient();
                     file<<recipent->getName()<<';'<<recipent->getPhoneNumber()<<';'<<recipent->getPostCode()<<';'<<recipent->getStreet()<<';'
                     <<recipent->getHouseNumber()<<';'<<recipent->getCity()<<';'<<recipent->getCountry()<<'\n';
 
-                    file<<headParcels->getCurrentData().getPostDate()->dateToString()<<';'<<headParcels->getCurrentData().getdateOfReceipt()->dateToString()<<';'
-                       <<headParcels->getCurrentData().getfinalDateOfReceiptAtTheFacility()->dateToString()<<'\n';
+                    file<<headParcels->getCurrentData().getPostDate()->dateToString()<<';';
 
+                    if(headParcels->getCurrentData().getdateOfReceipt())
+                    file<<headParcels->getCurrentData().getdateOfReceipt()->dateToString()<<';';
+                    else
+                        file <<"-;";
+
+                    if(headParcels->getCurrentData().getfinalDateOfReceiptAtTheFacility())
+                    file<<headParcels->getCurrentData().getfinalDateOfReceiptAtTheFacility()->dateToString()<<'\n';
+                    else
+                        file <<"-\n";
                     file<<headParcels->getCurrentData().getStatus()<<';'<<headParcels->getCurrentData().getStringID();
 
                     headParcels = headParcels->getNext();
+                    isFirst = 0;
                 }
+
     }
         file.close();
 }
 
 Database::~Database()
 {
+
+    writeFile();
+
     if(letters)
         delete letters;
     if(parcels)
         delete parcels;
-
-    writeFile();
 }
 
 

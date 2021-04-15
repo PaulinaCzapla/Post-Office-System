@@ -1,6 +1,5 @@
 #include "date.h"
 
-
 Date::Date(short unsigned int day_, short unsigned int month_, short unsigned int year_)
 {
     day = day_;
@@ -57,11 +56,11 @@ std::string Date::dateToString()
         tmp =std::to_string(this->day);
 
     if (this->month < 10)
-        tmp = tmp + "-0" + std::to_string(this->month);
+        tmp = tmp + ".0" + std::to_string(this->month);
     else
-        tmp =tmp +'-' + std::to_string(this->month);
+        tmp =tmp +'.' + std::to_string(this->month);
 
-    return tmp + '-' + std::to_string(this->year);
+    return tmp + '.' + std::to_string(this->year);
 }
 
 Date *Date::getCurrentDate()
