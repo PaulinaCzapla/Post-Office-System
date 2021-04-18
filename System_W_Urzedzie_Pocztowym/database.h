@@ -5,7 +5,7 @@
 #include "parcel.h"
 //#include "shipmentformwidget.h"
 #include "list.h"
-
+#include <list>
 
 class Database
 {
@@ -27,12 +27,14 @@ public:
     static int getLastID() {return lastID;};
     void findShipment(std::string&);
     void decrementLastID(){lastID--;};
+
+
+    std::list<Shipment*> searchByID(const QString&);
+    std::list<Shipment*> searchByPhoneNum(const QString&, bool recipient);
+    std::list<Shipment*> searchByStatus(const QString&);
+    std::list<Shipment*> searchByStatus(std::list<Shipment*>&, const QString&);
+
     ~Database();
-//    void findShipment(Node<Shipment*>&);
-//    void findShipment(Shipment*);
-//    void findShipment(std::string&);
-//    void changeStatus(ShipmentStatusManager&);
-//    void relocateShipment(Node<Shipment*>&);
 
 };
 

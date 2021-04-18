@@ -290,9 +290,92 @@ void Database::writeFile()
         file.close();
 }
 
+std::list<Shipment*> Database::searchByID(const QString& id)
+{
+    auto letter = letters->getElement(id.toInt());
+    auto parcel = parcels->getElement(id.toInt());
+
+    std::list<Shipment*> returnData;
+    if(letter)
+    {
+        returnData.push_back(&letter->getCurrentData());
+        return returnData;
+    }
+    if(parcel)
+    {
+        returnData.push_back(&parcel->getCurrentData());
+        return returnData;
+    }
+    return returnData;
+}
+
+std::list<Shipment *> Database::searchByPhoneNum(const QString & num, bool recipient)
+{
+    std::list<Shipment*> returnData;
+    auto headLetters = letters->getHead();
+
+        while (headLetters)
+        {
+            if(recipient)
+            {
+                if(headLetters->getCurrentData().getRecipient()->getPhoneNumber() == num.toStdString())
+                    returnData.push_back(&headLetters->getCurrentData());
+            }
+
+            else
+                if(headLetters->getCurrentData().getSender()->getPhoneNumber() == num.toStdString())
+                    returnData.push_back(&headLetters->getCurrentData());
+
+            headLetters = headLetters->getNext();
+        }
+
+        auto headParcels = parcels->getHead();
+
+        while (headParcels)
+        {
+            if(recipient)
+            {
+                if(headParcels->getCurrentData().getRecipient()->getPhoneNumber() == num.toStdString())
+                    returnData.push_back(&headParcels->getCurrentData());
+            }
+
+            else
+                if(headParcels->getCurrentData().getSender()->getPhoneNumber() == num.toStdString())
+                    returnData.push_back(&headParcels->getCurrentData());
+            headParcels = headParcels->getNext();
+        }
+        return returnData;
+}
+
+std::list<Shipment *> Database::searchByStatus(const QString & status)
+{
+    auto letter = letters->getElements(status.toStdString());
+    auto parcel = parcels->getElements(status.toStdString());
+
+    std::list<Shipment*> returnData;
+
+    for(auto it = letter.begin(); it!= letter.end(); it++)
+        returnData.push_back(&(*it)->getCurrentData());
+
+    for(auto it = parcel.begin(); it!= parcel.end(); it++)
+        returnData.push_back(&(*it)->getCurrentData());
+
+    return returnData;
+}
+
+std::list<Shipment *> Database::searchByStatus(std::list<Shipment *> & data, const QString & status)
+{
+    std::list<Shipment *> returnData;
+
+    for(auto it = data.begin(); it!= data.end(); it++)
+        if((*it)->getStatus() == status.toStdString())
+        returnData.push_back(*it);
+
+    return returnData;
+}
+
 Database::~Database()
 {
-
     writeFile();
 
     if(letters)
@@ -300,6 +383,8 @@ Database::~Database()
     if(parcels)
         delete parcels;
 }
+
+
 
 
 
