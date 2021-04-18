@@ -2,7 +2,7 @@
 #ifndef LIST_H
 #define LIST_H
 #include "node.h"
-
+#include <list>
 template<typename T>
 class List
 {
@@ -11,12 +11,13 @@ class List
 
 public:
     List();
-    Node<T>* addFront(Node<T>*);						//dodaje na poczatek listy
-    Node<T>* deleteElement(Node<T>*);					//usuwa wybrany element
-    int size();										//zwraca ilość elementów listy
+    Node<T>* addFront(Node<T>*);
+    Node<T>* deleteElement(Node<T>*);
+    int size();
     Node<T>* getHead();
-    Node <T>* getElement(std::string);           //szukanie elementu po ID, zwraca znaleziony element albo nullptr
+    std::list<Node <T>*> getElements(std::string);
     Node <T>* getElement(T&);
+    Node <T>* getElement(int);
     T pop();
     void setCounter(int);
     void increase_counter();
@@ -68,13 +69,28 @@ Node<T>* List<T>::deleteElement(Node<T>* node_)
 }
 
 template<typename T>
-Node<T>* List<T>::getElement(std::string id)
+std::list<Node <T>*>  List<T>::getElements(std::string name)
+{
+    Node<T>* tmp = this->head;
+    std::list<Node <T>*> returnData;
+    while (tmp)
+    {
+        if (tmp->getCurrentData() == name)
+            returnData.push_back(tmp);
+
+            tmp = tmp->getNext();
+    }
+    return returnData;
+}
+
+template<typename T>
+Node<T>* List<T>::getElement(int num)
 {
     Node<T>* tmp = this->head;
 
     while (tmp)
     {
-        if (tmp->getCurrentData() == id)
+        if (tmp->getCurrentData() == num)
             return tmp;
         else
             tmp = tmp->getNext();
