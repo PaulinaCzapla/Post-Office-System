@@ -12,7 +12,7 @@ using namespace DataInfo;
 
 
 /* tworzony jest obiekt Shipment* currentShipment oraz obiekt  SkipmentType */
-void ShipmentFormWidget::createShipmentType(bool prevLetter)
+void ShipmentFormWidget::createShipmentType(bool & prevLetter)
 {
     if(currentShipment)
     {
@@ -25,7 +25,7 @@ void ShipmentFormWidget::createShipmentType(bool prevLetter)
             prevLetter = true;
         }
 
-    } else if (typeid(*currentShipment).name()==typeid (LetterType).name())
+    } else if (typeid(*currentShipment).name()==typeid (Parcel).name())
     {
             if(dynamic_cast<Parcel*>(currentShipment)->getType())
             {
@@ -40,6 +40,10 @@ void ShipmentFormWidget::createShipmentType(bool prevLetter)
 ShipmentType* ShipmentFormWidget::saveComboBoxInfo(std::map<shipmentTypeInfo,QComboBox *> &comboBoxes)
 {
 
+    if(comboBoxes[type] == 0)
+        return nullptr;
+
+    //if()
     bool prevLetter = false;
     /* wykorzystanie RTTI */
     createShipmentType(prevLetter);
@@ -50,7 +54,7 @@ ShipmentType* ShipmentFormWidget::saveComboBoxInfo(std::map<shipmentTypeInfo,QCo
     if(comboBoxes[type]->currentIndex() == 1)
     {
         auto isRegistered_ = [](std::string reg){ if(reg=="rejestrowana") return true; else return false;};
-
+qDebug() << "rozmiar: " <<comboBoxes[size]->currentText();
         LetterType* letterType = new LetterType(isPriority_(comboBoxes[isPriority]->currentText().toStdString()),comboBoxes[size]->currentText().toStdString()[0],
                 isRegistered_(comboBoxes[isRegistered]->currentText().toStdString()), comboBoxes[shipmentTypeInfo::country]->currentText().toStdString()); //alokacja
 
@@ -95,7 +99,7 @@ ShipmentType* ShipmentFormWidget::saveComboBoxInfo(std::map<shipmentTypeInfo,QCo
             max =100;
         }
 
-
+    qDebug() << "rozmiar: " <<comboBoxes[size]->currentText();
         ParcelType* parcelType = new ParcelType(isPriority_(comboBoxes[isPriority]->currentText().toStdString()),
                                                 comboBoxes[size]->currentText().toStdString()[0], max, min, comboBoxes[shipmentTypeInfo::country]->currentText().toStdString());
         qDebug()<<"parcel type (read data from widget)";
@@ -118,18 +122,19 @@ ShipmentType* ShipmentFormWidget::saveComboBoxInfo(std::map<shipmentTypeInfo,QCo
 }
 
 //nieużywana
-void ShipmentFormWidget::clearComboBoxes(std::map<shipmentTypeInfo, QComboBox *> & comboBoxes)
+void ShipmentFormWidget::blockAllSignals(std::map<shipmentTypeInfo, QComboBox *> & comboBoxes, bool block)
 {
-    comboBoxes[type]->clear();
-    comboBoxes[isRegistered]->clear();
-    comboBoxes[isPriority]->clear();
-    comboBoxes[size]->clear();
-    comboBoxes[weight]->clear();
-    comboBoxes[shipmentTypeInfo::country]->clear();
+    comboBoxes[type]->blockSignals(block);
+    comboBoxes[isPriority]->blockSignals(block);
+    comboBoxes[isRegistered]->blockSignals(block);
+    comboBoxes[size]->blockSignals(block);
+    comboBoxes[weight]->blockSignals(block);
+    comboBoxes[shipmentTypeInfo::country]->blockSignals(block);
 }
 
 void ShipmentFormWidget::loadDataToComboBoxes(std::map<shipmentTypeInfo,QComboBox *> &comboBoxes)
 {
+    blockAllSignals(comboBoxes, true);
     if(comboBoxes[type]->count() == 0)
     {  
      comboBoxes[isPriority]->setDisabled(true);
@@ -163,11 +168,15 @@ void ShipmentFormWidget::loadDataToComboBoxes(std::map<shipmentTypeInfo,QComboBo
 
      if(comboBoxes[type]->currentIndex()==1)
      {
-         comboBoxes[size]->clear();
 
+
+        if(comboBoxes[size]->count() != 3)
+         {
+         comboBoxes[size]->clear();
          comboBoxes[size]->addItem("S");
          comboBoxes[size]->addItem("M");
          comboBoxes[size]->addItem("L");
+         }
 
          comboBoxes[isPriority]->setDisabled(false);
          comboBoxes[isRegistered]->setDisabled(false);
@@ -178,16 +187,20 @@ void ShipmentFormWidget::loadDataToComboBoxes(std::map<shipmentTypeInfo,QComboBo
 
      if(comboBoxes[type]->currentIndex()==2)
      {
+         if(comboBoxes[size]->count() != 2 )
+         {
+         comboBoxes[size]->clear();
+         comboBoxes[size]->addItem("A");
+         comboBoxes[size]->addItem("B");
+         }
+
          comboBoxes[isRegistered]->setDisabled(true);
          comboBoxes[isPriority]->setDisabled(false);
          comboBoxes[size]->setDisabled(false);
          comboBoxes[weight]->setDisabled(false);
          comboBoxes[shipmentTypeInfo::country]->setDisabled(false);
-
-         comboBoxes[size]->clear();
-         comboBoxes[size]->addItem("A");
-         comboBoxes[size]->addItem("B");
      }
+     blockAllSignals(comboBoxes, false);
 }
 
 void ShipmentFormWidget::loadCountriesToComboBox(QComboBox *& comboBoxCountries)
@@ -279,6 +292,29 @@ void ShipmentFormWidget::insertRecord(std::map<dataInfo, std::string> & sender, 
 
    delete currentShipment; //usuwam kopię
     currentShipment = nullptr;
+}
+
+void ShipmentFormWidget::loadComboBoxSearchStatus(QComboBox *& combobox)
+{
+    combobox->addItem("");
+    combobox->addItem("nadano");
+    combobox->addItem("w drodze");
+    combobox->addItem("oczekuje na odbior w placowce");
+    combobox->addItem("oczekuje na wreczenie kurierowi");
+    combobox->addItem("wreczono kurierowi do doreczenia");
+    combobox->addItem("doreczono");
+    combobox->addItem("uplynal termin odbioru");
+    combobox->addItem("odmowiono odbioru");
+    combobox->addItem("odeslano do nadawcy");
+}
+
+void ShipmentFormWidget::loadComboBoxSearch(QComboBox *& combobox)
+{
+    combobox->addItem("");
+    combobox->addItem("nr przesyłki");
+    combobox->addItem("nr tel. odbiorcy");
+    combobox->addItem("nr tel. nadawcy");
+ //   combobox->addItem("status");
 }
 
 

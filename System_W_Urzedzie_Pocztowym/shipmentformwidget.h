@@ -22,18 +22,20 @@ class ShipmentFormWidget : public Sorter, public Validator
 
 public:
 
-    ShipmentFormWidget() : currentShipment(nullptr){};
+    ShipmentFormWidget() : Sorter(), Validator(), currentShipment(nullptr){};
     ShipmentType* saveComboBoxInfo(std::map<shipmentTypeInfo,QComboBox *> &);
     void loadDataToComboBoxes(std::map<shipmentTypeInfo,QComboBox *>&);
     void loadCountriesToComboBox(QComboBox*&);
-    void clearComboBoxes(std::map<shipmentTypeInfo,QComboBox *>&);
+    void blockAllSignals(std::map<shipmentTypeInfo,QComboBox *>&, bool);
     std::pair<std::vector<dataInfo>*, std::vector<dataInfo>*>* processFormData(std::map<dataInfo, std::string> &, std::map<dataInfo, std::string> &, std::string);
     std::vector<dataInfo>* validatePersonalData(std::map<dataInfo, std::string> &,std::string );
     void insertRecord(std::map<dataInfo, std::string>&, std::map<dataInfo, std::string>&, Database*, Database*);
 
-    //void sortAlphabetically(std::list<std::string>&);
+    void loadComboBoxSearch(QComboBox*&);
+    void loadComboBoxSearchStatus(QComboBox*&);
+
     ~ShipmentFormWidget();
-    void createShipmentType(bool);
+    void createShipmentType(bool&);
 };
 
 #endif// SHIPMENTTYPEFORMWIDGET_H

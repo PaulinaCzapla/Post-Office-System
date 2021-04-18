@@ -42,6 +42,22 @@ int Shipment::stringIDtoInt(std::string strID)
     return stoi(strID);
 }
 
+bool Shipment::operator==(const std::string & _status)
+{
+    if(status == _status)
+        return true;
+    else
+        return false;
+}
+
+bool Shipment::operator==(const unsigned int & _id)
+{
+    if(ID==_id)
+        return true;
+    else
+        return false;
+}
+
 Shipment::~Shipment()
 {
     if(recipient)

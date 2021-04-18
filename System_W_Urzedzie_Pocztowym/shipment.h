@@ -20,7 +20,7 @@ class Shipment
 public:
     Shipment();
     Shipment(Person*, Person*, Date*, Date*, Date*, std::string, bool);
-   // Shipment(Shipment&);
+    Shipment(Shipment& other ) {*this = other;};
     inline void setRecipient(Person* other) {recipient = other;}
     inline void setSender(Person* other) {sender = other;}
     inline void setPostDate(Date* other) {postDate = other;}
@@ -43,6 +43,8 @@ public:
 
     static std::string intIDtoString (int);
     static int stringIDtoInt(std::string);
+    bool operator==(const std::string&);
+    bool operator==(const unsigned int&);
 
     virtual ~Shipment();
 };
