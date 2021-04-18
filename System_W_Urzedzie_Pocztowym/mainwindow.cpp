@@ -31,22 +31,30 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(0);
     getFormDataFromComboBoxes();
-    adjustTable(ui->tableWidgetLocalDatabase);
-    adjustTable(ui->tableWidgetMainDatabase);
-   // loadTable(shipmentForm->databases->getLocalDatabaseLetters(), shipmentForm->databases->getLocalDatabaseParcels(), ui->tableWidgetLocalDatabase);
+    localDatabaseWidget->adjustTable(ui->tableWidgetLocalDatabase);
+    mainDatabaseWidget->adjustTable(ui->tableWidgetMainDatabase);
+
+    shipmentForm->loadComboBoxSearch(ui->comboBox_SearchFor_LocalDatabase);
+    shipmentForm->loadComboBoxSearch(ui->comboBox_SearchFor_MainDatabase);
+    shipmentForm->loadComboBoxSearchStatus(ui->comboBox_SearchForStatus_LocalDatabase);
+    shipmentForm->loadComboBoxSearchStatus(ui->comboBox_SearchForStatus_MainDatabase);
+
+    indexes.insert(std::pair<shipmentTypeInfo, int> (type, -1));
+    indexes.insert(std::pair<shipmentTypeInfo, int> (isRegistered, -1));
+    indexes.insert(std::pair<shipmentTypeInfo, int> (isPriority, -1));
+    indexes.insert(std::pair<shipmentTypeInfo, int> (weight, -1));
+    indexes.insert(std::pair<shipmentTypeInfo, int> (shipmentTypeInfo::size, -1));
+    indexes.insert(std::pair<shipmentTypeInfo, int> (shipmentTypeInfo::country, -1));
 }
 
 
 MainWindow::~MainWindow()
 {
     delete ui;
-
 }
 
 void MainWindow::on_pushButtonRegisterParcel_clicked()
 {
-    qDebug() << "register";
-
     auto comboBoxes = getFormDataFromComboBoxes();
     shipmentForm->loadDataToComboBoxes(comboBoxes);
     ui->comboBoxShipmentType->setCurrentIndex(0);
@@ -57,17 +65,17 @@ void MainWindow::on_pushButtonRegisterParcel_clicked()
 
 void MainWindow::on_pushButtonLocalDatabase_clicked()
 {
-    qDebug() << "local database";
-    loadTable(localDatabase->getLetters(), localDatabase->getParcels(), ui->tableWidgetLocalDatabase);
-
+    ui->tableWidgetLocalDatabase->setRowCount(0);
+    localDatabaseWidget->loadTable<Letter>(localDatabase->getLetters(), ui->tableWidgetLocalDatabase);
+    localDatabaseWidget->loadTable<Parcel>(localDatabase->getParcels(), ui->tableWidgetLocalDatabase);
     ui->stackedWidget->setCurrentIndex(3);
 }
 
 void MainWindow::on_pushButtonMainDatabase_clicked()
 {
-    qDebug() << "main database";
-    loadTable(mainDatabase->getLetters(), mainDatabase->getParcels(), ui->tableWidgetMainDatabase);
-
+    ui->tableWidgetMainDatabase->setRowCount(0);
+    mainDatabaseWidget->loadTable<Letter>(mainDatabase->getLetters(), ui->tableWidgetMainDatabase);
+    mainDatabaseWidget->loadTable<Parcel>(mainDatabase->getParcels(), ui->tableWidgetMainDatabase);
     ui->stackedWidget->setCurrentIndex(4);
 }
 
@@ -81,14 +89,13 @@ void MainWindow::closeEvent (QCloseEvent *event)
 
     if(ret==QMessageBox::Ok)
     {
-        saveDatabase();
         delete shipmentForm;
         delete localDatabaseWidget;
         delete mainDatabaseWidget;
         delete shipmentPricesManager;
         delete localDatabase;
         delete mainDatabase;
-         event->accept();
+        event->accept();
 
         exit(1);
     }
@@ -127,34 +134,14 @@ std::map<shipmentTypeInfo,QComboBox *> MainWindow::getFormDataFromComboBoxes()
     return comboBoxes;
 }
 
-void MainWindow::on_pushButtonConfirm_Page1_clicked()
-{
-     ui->labelPrice->clear();
-    qDebug() << "confirm";
-    std::string type = ui->comboBoxShipmentType->currentText().toStdString();
-
-    if(!type.empty())
-    {
-      auto comboBoxes = getFormDataFromComboBoxes();
-      auto shipmentType = shipmentForm->saveComboBoxInfo(comboBoxes);
-     qDebug()<<"tworzenie ceny confirm";
-    ui->labelPrice->setText( shipmentPricesManager->returnProperPrice(shipmentPricesManager->getShipmentPrice(shipmentType))+ " zł"); //do debugowania
-
-    }
-    else
-        lackOfDataDialog_pop();
-}
 void MainWindow::on_pushButtonConfirmAndGo_clicked()
 {
-  //  ui->labelPrice->clear();
-    qDebug() << "go";
-
     std::string type = ui->comboBoxShipmentType->currentText().toStdString();
     if(!type.empty())
     {
         auto comboBoxes = getFormDataFromComboBoxes();
         auto shipmentType = shipmentForm->saveComboBoxInfo(comboBoxes);
-    qDebug()<<"tworzenie ceny confirm and go";
+
     ui->labelPrice->setText( shipmentPricesManager->returnProperPrice(shipmentPricesManager->getShipmentPrice(shipmentType)) + " zł");
 
     //wyświetlanie ID przesyłki
@@ -168,9 +155,6 @@ void MainWindow::on_pushButtonConfirmAndGo_clicked()
         lackOfDataDialog_pop();
 }
 
-
-//pobranie danych z formualrza
-
 void MainWindow::getFormData(std::map<dataInfo, std::string> & sender, std::map<dataInfo, std::string>& recipient)
 {
     sender.insert(std::pair<dataInfo, std::string>(name ,ui->lineEdit_SenderName->text().toStdString()));
@@ -179,7 +163,6 @@ void MainWindow::getFormData(std::map<dataInfo, std::string> & sender, std::map<
     sender.insert(std::pair<dataInfo, std::string>(houseNumber ,ui->lineEdit_SenderHouseNum->text().toStdString()));
     sender.insert(std::pair<dataInfo, std::string>(postCode ,ui->lineEdit_SenderPostCode->text().toStdString()));
     sender.insert(std::pair<dataInfo, std::string>(city ,ui->lineEdit_SenderTown->text().toStdString()));
- //   sender.insert(std::pair<dataInfo, std::string>(dataInfo::country ,"POL"));
 
     recipient.insert(std::pair<dataInfo, std::string>(name ,ui->lineEdit_RecipientName->text().toStdString()));
     recipient.insert(std::pair<dataInfo, std::string>(phoneNumber,ui->lineEdit_RecipientPhone->text().toStdString()));
@@ -187,15 +170,42 @@ void MainWindow::getFormData(std::map<dataInfo, std::string> & sender, std::map<
     recipient.insert(std::pair<dataInfo, std::string>(houseNumber ,ui->lineEdit_RecipientHouseNum->text().toStdString()));
     recipient.insert(std::pair<dataInfo, std::string>(postCode ,ui->lineEdit_RecipientPostCode->text().toStdString()));
     recipient.insert(std::pair<dataInfo, std::string>(city ,ui->lineEdit_RecipientTown->text().toStdString()));
-   // recipient.insert(std::pair<dataInfo, std::string>(dataInfo::country ,ui->comboBoxCountry->currentText().toStdString()));
-}
+  }
 
 //mozna przeniesc
-void MainWindow::checkInvalidData(std::pair<std::vector<dataInfo> *, std::vector<dataInfo> *> * invalidData)
+void MainWindow::checkInvalidDataRecipient(std::vector<dataInfo> * invalidData)
 {
-    if(!invalidData->first->empty())
+    if(!invalidData->empty())
     {
-     for (std::vector<dataInfo>::iterator it = invalidData->first->begin(); it!=invalidData->first->end(); ++it)
+      for (std::vector<dataInfo>::iterator it = invalidData->begin(); it!=invalidData->end(); ++it)
+      {
+          if(*it == name)
+            ui->lineEdit_RecipientName->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
+
+          if(*it == phoneNumber)
+              ui->lineEdit_RecipientPhone->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
+
+          if(*it == street)
+              ui->lineEdit_RecipientStreet->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
+
+          if(*it == postCode)
+              ui->lineEdit_RecipientPostCode->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
+
+          if(*it == city)
+              ui->lineEdit_RecipientTown->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
+
+          if(*it == houseNumber)
+              ui->lineEdit_RecipientHouseNum->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
+
+      }
+    }
+}
+
+void MainWindow::checkInvalidDataSender(std::vector<dataInfo> * invalidData)
+{
+    if(!invalidData->empty())
+    {
+     for (std::vector<dataInfo>::iterator it = invalidData->begin(); it!=invalidData->end(); ++it)
      {
          if(*it == name)
            ui->lineEdit_SenderName->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
@@ -214,45 +224,14 @@ void MainWindow::checkInvalidData(std::pair<std::vector<dataInfo> *, std::vector
 
          if(*it == houseNumber)
              ui->lineEdit_SenderHouseNum->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
-
         }
     }
-    if(!invalidData->second->empty())
-    {
-      for (std::vector<dataInfo>::iterator it = invalidData->second->begin(); it!=invalidData->second->end(); ++it)
-      {
-          if(*it == name)
-          {
-            ui->lineEdit_RecipientName->clear();
-            ui->lineEdit_RecipientName->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
-          }
-          if(*it == phoneNumber)
-          {
-              ui->lineEdit_RecipientPhone->clear();
-              ui->lineEdit_RecipientPhone->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
-          }
-          if(*it == street)
-          {
-              ui->lineEdit_RecipientStreet->clear();
-              ui->lineEdit_RecipientStreet->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
-          }
-          if(*it == postCode)
-          {
-              ui->lineEdit_RecipientPostCode->clear();
-              ui->lineEdit_RecipientPostCode->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
-          }
-          if(*it == city)
-          {
-              ui->lineEdit_RecipientTown->clear();
-              ui->lineEdit_RecipientTown->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
-          }
-          if(*it == houseNumber)
-          {
-              ui->lineEdit_RecipientHouseNum->clear();
-              ui->lineEdit_RecipientHouseNum->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
-          }
-      }
-    }
+}
+
+void MainWindow::checkInvalidData(std::pair<std::vector<dataInfo> *, std::vector<dataInfo> *> * invalidData)
+{
+    checkInvalidDataSender(invalidData->first);
+    checkInvalidDataRecipient(invalidData->second);
 }
 
 //można przeniesc
@@ -331,11 +310,7 @@ void MainWindow::on_pushButtonConfirm_Page2_clicked()
     }
 }
 
-void MainWindow::on_pushButtonGoBack_Page2_clicked()
-{
-    ui->stackedWidget->setCurrentIndex(1);
-}
-
+void MainWindow::on_pushButtonGoBack_Page2_clicked(){ ui->stackedWidget->setCurrentIndex(1);}
 
 
 void MainWindow::on_pushButtonPrintLabel_clicked()
@@ -346,15 +321,7 @@ void MainWindow::on_pushButtonPrintLabel_clicked()
 void MainWindow::on_pushButtonGoBack_LocalDatabase_clicked()
 {
     ui->stackedWidget->setCurrentIndex(0);
-
     ui->tableWidgetLocalDatabase->setRowCount(0);
-}
-
-
-void MainWindow::on_comboBoxShipmentType_currentIndexChanged(const QString &arg1)
-{
-     ui->labelPrice->clear();
-     getFormDataFromComboBoxes();
 }
 
 void MainWindow::on_pushButton_FinishAddingNewRecord_clicked()
@@ -363,227 +330,208 @@ void MainWindow::on_pushButton_FinishAddingNewRecord_clicked()
     ui->stackedWidget->setCurrentIndex(0);
 }
 
-//do przeniesienia
-void MainWindow::adjustTable(QTableWidget *&tab)
-{
-    // ID //typ // status// Data wysylki // data odbioru // data odbioru w pl // nadawca // odbiorca
-  tab->setColumnCount(8);
-  QStringList labels;
-
-  labels.push_back("ID");
-  labels.push_back("Typ");
-  labels.push_back("Status");
-  labels.push_back("Nadawca");
-  labels.push_back("Odbiorca");
-  labels.push_back("Data wysyłki");
-  labels.push_back("Data odbioru");
-  labels.push_back("Termin odbioru");
-
-  tab->setHorizontalHeaderLabels(labels);
-  tab->setEditTriggers(QAbstractItemView::NoEditTriggers);
-}
-
-//do przeniesienia i refaktoryzacji
-void MainWindow::loadTable(List<Letter> * lettersList, List<Parcel> * parcelsList,QTableWidget *& tab)
-{
-    int i =0, j =0;
-    auto headLetters = lettersList->getHead();
-
-        while (headLetters)
-        {
-            QStringList type;
-            QStringList recipient;
-            QStringList sender;
-
-            QString ID, status, sendDate, receiptDate, deadline, tmp="";
-
-            auto data = headLetters->getCurrentData();
-
-            type.push_back("list");
-            (data.getType()->getIsPriority() == true ?  type.push_back("priorytetowy") : type.push_back("zwykły"));
-            (data.getType()->getIsRegistered() == true ?  type.push_back("rejestrowany") : type.push_back("nierejestrowany"));
-            type.push_back(tmp+data.getType()->getSize());
-
-            sender.push_back(QString::fromStdString(data.getSender()->getName()));
-            sender.push_back(QString::fromStdString(data.getSender()->getPhoneNumber()));
-            sender.push_back(QString::fromStdString(data.getSender()->getCountry()));
-            sender.push_back(QString::fromStdString(data.getSender()->getCity()));
-            sender.push_back(QString::fromStdString(data.getSender()->getStreet() + " " + data.getSender()->getHouseNumber()));
-            sender.push_back(QString::fromStdString(data.getSender()->getPostCode()));
-
-
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getName()));
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getPhoneNumber()));
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getCountry()));
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getCity()));
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getStreet() + " " + data.getRecipient()->getHouseNumber()));
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getPostCode()));
-
-            ID = QString::fromStdString(data.getStringID());
-            status = QString::fromStdString(data.getStatus());
-            (data.getPostDate()== nullptr ? sendDate = "-" : sendDate = QString::fromStdString(data.getPostDate()->dateToString()));
-            (data.getdateOfReceipt()== nullptr ? receiptDate = "-" : receiptDate = QString::fromStdString(data.getdateOfReceipt()->dateToString()));
-            (data.getfinalDateOfReceiptAtTheFacility()== nullptr ? deadline = "-" : deadline = QString::fromStdString(data.getfinalDateOfReceiptAtTheFacility()->dateToString()));
-
-            tab->insertRow(i);
-             j =0;
-
-            QTableWidgetItem* item = new QTableWidgetItem;
-            item->setText(ID);
-            item->setTextAlignment(Qt::AlignCenter);
-            tab->setItem(i,j,item);
-            j++;
-
-            QComboBox* combo = new QComboBox();
-
-            combo->insertItems(0,type);
-            combo->setStyleSheet("background-color: white ");
-            tab->setCellWidget(i,j, combo);
-            j++;
-
-            QTableWidgetItem* item2 = new QTableWidgetItem;
-            item2->setText(status);
-            item2->setTextAlignment(Qt::AlignCenter);
-            tab->setItem(i,j,item2);
-            j++;
-
-            QComboBox* combo2 = new QComboBox();
-            combo2->setStyleSheet("background-color: white ");
-            combo2->insertItems(0,sender);
-            tab->setCellWidget(i,j, combo2);
-
-            j++;
-           QComboBox* combo3 = new QComboBox();
-           combo3->setStyleSheet("background-color: white ");
-           combo3->insertItems(0,recipient);
-           tab->setCellWidget(i,j, combo3);
-            j++;
-           QTableWidgetItem* item3 = new QTableWidgetItem;
-           item3->setText(sendDate);
-           item3->setTextAlignment(Qt::AlignCenter);
-           tab->setItem(i,j,item3);
-           j++;
-
-           QTableWidgetItem* item4 = new QTableWidgetItem;
-           item4->setText(receiptDate);
-           item4->setTextAlignment(Qt::AlignCenter);
-           tab->setItem(i,j,item4);
-           j++;
-
-           QTableWidgetItem* item5 = new QTableWidgetItem;
-           item5->setText(deadline);
-           item5->setTextAlignment(Qt::AlignCenter);
-           tab->setItem(i,j,item5);
-           j++;
-
-           tab->setItem(i,j,item2);
-           i++;
-
-            headLetters = headLetters->getNext();
-        }
-        tab->resizeColumnsToContents();
-        i =0;
-        j =0;
-        auto headParcels = parcelsList->getHead();
-
-            while (headParcels)
-            {
-                QStringList type;
-                QStringList recipient;
-                QStringList sender;
-
-                QString ID, status, sendDate, receiptDate, deadline, tmp="";
-
-                auto data = headParcels->getCurrentData();
-
-                type.push_back("paczka");
-                (data.getType()->getIsPriority() == true ?  type.push_back("priorytetowy") : type.push_back("zwykły"));
-                type.push_back(tmp+data.getType()->getSize());
-                type.push_back(QString::number(data.getType()->getMinWeight()) + " - " + QString::number(data.getType()->getMaxWeight())+" kg" );
-
-                sender.push_back(QString::fromStdString(data.getSender()->getName()));
-                sender.push_back(QString::fromStdString(data.getSender()->getPhoneNumber()));
-                sender.push_back(QString::fromStdString(data.getSender()->getCountry()));
-                sender.push_back(QString::fromStdString(data.getSender()->getCity()));
-                sender.push_back(QString::fromStdString(data.getSender()->getStreet() + " " + data.getSender()->getHouseNumber() ));
-                sender.push_back(QString::fromStdString(data.getSender()->getPostCode()));
-                recipient.push_back(QString::fromStdString(data.getRecipient()->getName()));
-                recipient.push_back(QString::fromStdString(data.getRecipient()->getPhoneNumber()));
-                recipient.push_back(QString::fromStdString(data.getRecipient()->getCountry()));
-                recipient.push_back(QString::fromStdString(data.getRecipient()->getCity()));
-                recipient.push_back(QString::fromStdString(data.getRecipient()->getStreet() + " " + data.getRecipient()->getHouseNumber()));
-                recipient.push_back(QString::fromStdString(data.getRecipient()->getPostCode()));
-
-                ID = QString::fromStdString(data.getStringID());
-                status = QString::fromStdString(data.getStatus());
-                (data.getPostDate()== nullptr ? sendDate = "-" : sendDate = QString::fromStdString(data.getPostDate()->dateToString()));
-                (data.getdateOfReceipt()== nullptr ? receiptDate = "-" : receiptDate = QString::fromStdString(data.getdateOfReceipt()->dateToString()));
-                (data.getfinalDateOfReceiptAtTheFacility()== nullptr ? deadline = "-" : deadline = QString::fromStdString(data.getfinalDateOfReceiptAtTheFacility()->dateToString()));
-
-                tab->insertRow(i);
-                 j =0;
-
-
-                QTableWidgetItem* item = new QTableWidgetItem;
-                item->setText(ID);
-                item->setTextAlignment(Qt::AlignCenter);
-                tab->setItem(i,j,item);
-                j++;
-
-                QComboBox* combo = new QComboBox();
-
-                combo->insertItems(0,type);
-                combo->setStyleSheet("background-color: white ");
-                tab->setCellWidget(i,j, combo);
-                j++;
-
-                QTableWidgetItem* item2 = new QTableWidgetItem;
-                item2->setText(status);
-                item2->setTextAlignment(Qt::AlignCenter);
-                tab->setItem(i,j,item2);
-                j++;
-
-                QComboBox* combo2 = new QComboBox();
-                combo2->setStyleSheet("background-color: white ");
-                combo2->insertItems(0,sender);
-                tab->setCellWidget(i,j, combo2);
-                j++;
-
-                QComboBox* combo3 = new QComboBox();
-                combo3->setStyleSheet("background-color: white ");
-                combo3->insertItems(0,recipient);
-                tab->setCellWidget(i,j, combo3);
-                j++;
-
-               QTableWidgetItem* item3 = new QTableWidgetItem;
-               item3->setText(sendDate);
-               item3->setTextAlignment(Qt::AlignCenter);
-               tab->setItem(i,j,item3);
-               j++;
-
-               QTableWidgetItem* item4 = new QTableWidgetItem;
-               item4->setText(receiptDate);
-               item4->setTextAlignment(Qt::AlignCenter);
-               tab->setItem(i,j,item4);
-               j++;
-
-               QTableWidgetItem* item5 = new QTableWidgetItem;
-               item5->setText(deadline);
-               item5->setTextAlignment(Qt::AlignCenter);
-               tab->setItem(i,j,item5);
-               j++;
-
-               tab->setItem(i,j,item2);
-               i++;
-
-                headParcels = headParcels->getNext();
-            }
-
-            tab->resizeColumnsToContents();
-}
 
 void MainWindow::on_pushButtonGoBack_MainDatabase_clicked()
 {
     ui->stackedWidget->setCurrentIndex(0);
+    ui->tableWidgetMainDatabase->setRowCount(0);
 }
 
+
+void MainWindow::on_pushButton_SearchMainDatabase_clicked()
+{
+    std::list<Shipment*> tmp;
+
+    switch(ui->comboBox_SearchFor_MainDatabase->currentIndex())
+    {
+        case 0:
+        if(ui->comboBox_SearchForStatus_MainDatabase->currentIndex()!=0)
+        {
+        tmp = mainDatabase->searchByStatus(ui->comboBox_SearchForStatus_MainDatabase->currentText());
+        mainDatabaseWidget->displaySelectedRows(ui->tableWidgetMainDatabase ,tmp);
+        }
+        else
+            on_comboBox_SearchFor_MainDatabase_currentIndexChanged(0);
+        break;
+
+        case 1:
+        tmp = mainDatabase->searchByID(ui->lineEdit_SearchMainDatabase->text());
+        mainDatabaseWidget->displaySelectedRows(ui->tableWidgetMainDatabase ,tmp);
+        break;
+
+        case 2:
+        tmp = mainDatabase->searchByPhoneNum(ui->lineEdit_SearchMainDatabase->text(), true);
+        if(ui->comboBox_SearchForStatus_MainDatabase->currentIndex()!=0)
+            tmp = mainDatabase->searchByStatus(tmp, ui->comboBox_SearchForStatus_MainDatabase->currentText());
+
+        mainDatabaseWidget->displaySelectedRows(ui->tableWidgetMainDatabase ,tmp);
+        break;
+
+        case 3:
+        tmp = mainDatabase->searchByPhoneNum(ui->lineEdit_SearchMainDatabase->text(), false);
+
+        if(ui->comboBox_SearchForStatus_MainDatabase->currentIndex()!=0)
+            tmp = mainDatabase->searchByStatus(tmp, ui->comboBox_SearchForStatus_MainDatabase->currentText());
+        mainDatabaseWidget->displaySelectedRows(ui->tableWidgetMainDatabase ,tmp);
+        break;
+
+        default:
+        break;
+    }
+}
+
+void MainWindow::on_pushButton_SearchLocalDatabase_clicked()
+{
+    std::list<Shipment*> tmp;
+
+    switch(ui->comboBox_SearchFor_LocalDatabase->currentIndex())
+    {
+        case 0:
+        if(ui->comboBox_SearchForStatus_LocalDatabase->currentIndex()!=0)
+        {
+            tmp = localDatabase->searchByStatus(ui->comboBox_SearchForStatus_LocalDatabase->currentText());
+            localDatabaseWidget->displaySelectedRows(ui->tableWidgetLocalDatabase ,tmp);
+        }
+        else
+            on_comboBox_SearchFor_LocalDatabase_currentIndexChanged(0);
+        break;
+
+        case 1:
+        tmp = localDatabase->searchByID(ui->lineEdit_SearchLocalDatabase->text());
+        localDatabaseWidget->displaySelectedRows(ui->tableWidgetLocalDatabase ,tmp);
+        break;
+
+        case 2:
+        tmp = localDatabase->searchByPhoneNum(ui->lineEdit_SearchLocalDatabase->text(), true);
+        if(ui->comboBox_SearchForStatus_LocalDatabase->currentIndex()!=0)
+            tmp = localDatabase->searchByStatus(tmp, ui->comboBox_SearchForStatus_LocalDatabase->currentText());
+
+        localDatabaseWidget->displaySelectedRows(ui->tableWidgetLocalDatabase ,tmp);
+        break;
+
+        case 3:
+        tmp = localDatabase->searchByPhoneNum(ui->lineEdit_SearchLocalDatabase->text(), false);
+        if(ui->comboBox_SearchForStatus_LocalDatabase->currentIndex()!=0)
+            tmp = localDatabase->searchByStatus(tmp, ui->comboBox_SearchForStatus_LocalDatabase->currentText());
+
+        localDatabaseWidget->displaySelectedRows(ui->tableWidgetLocalDatabase ,tmp);
+        break;
+
+        default:
+        break;
+    }
+}
+
+void MainWindow::on_comboBox_SearchFor_MainDatabase_currentIndexChanged(int index)
+{
+    if(index == 0)
+    {
+        ui->tableWidgetMainDatabase->setRowCount(0);
+        mainDatabaseWidget->loadTable<Letter>(mainDatabase->getLetters(), ui->tableWidgetMainDatabase);
+        mainDatabaseWidget->loadTable<Parcel>(mainDatabase->getParcels(), ui->tableWidgetMainDatabase);
+    }
+    if(index == 1)
+        ui->comboBox_SearchForStatus_MainDatabase->setDisabled(true);
+    else
+        ui->comboBox_SearchForStatus_MainDatabase->setDisabled(false);
+}
+
+void MainWindow::on_comboBox_SearchFor_LocalDatabase_currentIndexChanged(int index)
+{
+    if(index == 0)
+    {
+        ui->tableWidgetLocalDatabase->setRowCount(0);
+        localDatabaseWidget->loadTable<Letter>(localDatabase->getLetters(), ui->tableWidgetLocalDatabase);
+        localDatabaseWidget->loadTable<Parcel>(localDatabase->getParcels(), ui->tableWidgetLocalDatabase);
+    }
+    if(index == 1)
+        ui->comboBox_SearchForStatus_LocalDatabase->setDisabled(true);
+    else
+        ui->comboBox_SearchForStatus_LocalDatabase->setDisabled(false);
+}
+
+void MainWindow::on_comboBox_SearchForStatus_LocalDatabase_currentIndexChanged(int index)
+{
+    if(index == 0)
+        on_pushButton_SearchLocalDatabase_clicked();
+}
+
+void MainWindow::on_comboBox_SearchForStatus_MainDatabase_currentIndexChanged(int index)
+{
+    if(index == 0)
+        on_pushButton_SearchMainDatabase_clicked();
+}
+
+
+void MainWindow::on_comboBoxShipmentType_currentIndexChanged(const QString &arg1)
+{
+    qDebug() << "type changed";
+
+     ui->labelPrice->clear();
+     auto comboBoxes = getFormDataFromComboBoxes();
+
+     if(arg1!="")
+     {
+         auto shipmentType = shipmentForm->saveComboBoxInfo(comboBoxes);
+         if(shipmentType)
+         ui->labelPrice->setText( shipmentPricesManager->returnProperPrice(shipmentPricesManager->getShipmentPrice(shipmentType)) + " zł");
+     }
+}
+
+void MainWindow::on_comboBoxRegistered_currentIndexChanged(int index)
+{
+    qDebug() << "registered changed";
+
+    if(indexes[isRegistered] == index)
+    changePrice();
+
+    indexes[isRegistered] = index;
+}
+
+
+void MainWindow::on_comboBoxPriority_currentIndexChanged(int index)
+{
+    qDebug() << "priority changed";
+    if(indexes[isPriority] == index)
+    changePrice();
+
+    indexes[isPriority] = index;
+}
+
+void MainWindow::on_comboBoxSize_currentIndexChanged(int index)
+{
+    qDebug() << "size changed";
+    if(indexes[shipmentTypeInfo::size] == index)
+    changePrice();
+
+    indexes[shipmentTypeInfo::size] = index;
+}
+
+void MainWindow::on_comboBoxWeight_currentIndexChanged(int index)
+{
+    qDebug() << "weight changed";
+    if(indexes[weight] == index)
+    changePrice();
+
+    indexes[weight] = index;
+}
+
+void MainWindow::on_comboBoxCountry_currentIndexChanged(int index)
+{
+    qDebug() << "country changed";
+    if(indexes[shipmentTypeInfo::country] == index)
+    changePrice();
+
+    indexes[shipmentTypeInfo::country] = index;
+}
+
+void MainWindow::changePrice()
+{
+    ui->labelPrice->clear();
+
+    auto comboBoxes = getFormDataFromComboBoxes();
+    auto shipmentType = shipmentForm->saveComboBoxInfo(comboBoxes);
+
+    if(shipmentType)
+    ui->labelPrice->setText( shipmentPricesManager->returnProperPrice(shipmentPricesManager->getShipmentPrice(shipmentType)) + " zł");
+}

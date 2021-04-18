@@ -59,8 +59,13 @@
         <height>600</height>
        </size>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page_0">
        <layout class="QGridLayout" name="gridLayout_2">
@@ -3808,42 +3813,6 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButtonConfirm_Page1">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>190</width>
-              <height>80</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>190</width>
-              <height>80</height>
-             </size>
-            </property>
-            <property name="baseSize">
-             <size>
-              <width>190</width>
-              <height>80</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Zatwierdź</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <spacer name="horizontalSpacer_60">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -4822,6 +4791,11 @@
                   <height>0</height>
                  </size>
                 </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
                </widget>
               </item>
              </layout>
@@ -4852,6 +4826,11 @@
                 <width>170</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
               </property>
              </widget>
             </item>
@@ -4890,7 +4869,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox_SearchFor_LocalDatabase_2">
+               <widget class="QComboBox" name="comboBox_SearchForStatus_LocalDatabase">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -4908,6 +4887,11 @@
                   <width>80</width>
                   <height>0</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
                 </property>
                </widget>
               </item>
@@ -5029,6 +5013,11 @@
                   <width>200</width>
                   <height>0</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
                 </property>
                </widget>
               </item>
@@ -5200,6 +5189,11 @@
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
                  </widget>
                 </item>
                </layout>
@@ -5230,6 +5224,11 @@
                   <width>170</width>
                   <height>0</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
                 </property>
                </widget>
               </item>
@@ -5286,6 +5285,11 @@
                     <width>80</width>
                     <height>0</height>
                    </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
                   </property>
                  </widget>
                 </item>
@@ -5409,6 +5413,11 @@
                   <width>200</width>
                   <height>0</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
                 </property>
                </widget>
               </item>
@@ -5687,7 +5696,6 @@
   <tabstop>pushButtonConfirm_Page2</tabstop>
   <tabstop>pushButtonPrintLabel</tabstop>
   <tabstop>pushButtonGoBack_Page2</tabstop>
-  <tabstop>pushButtonConfirm_Page1</tabstop>
   <tabstop>pushButtonLocalDatabase</tabstop>
   <tabstop>comboBox_SearchFor_LocalDatabase</tabstop>
   <tabstop>lineEdit_SearchLocalDatabase</tabstop>
