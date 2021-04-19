@@ -36,6 +36,7 @@ public:
 
     ~Database();
 
+    void getPersonalData(std::fstream&, Person*&);
 };
 
 

@@ -15,10 +15,34 @@ Database::Database(std::string _filename)
 }
 
 
+void Database::getPersonalData(std::fstream& file, Person* &person)
+{
+    std::string data;
+
+    getline(file, data, ';');
+    person->setName(data);
+    //phone
+    getline(file, data, ';');
+    person->setPhoneNumber(data);
+    //postcode
+    getline(file, data, ';');
+    person->setPostCode(data);
+    //street
+    getline(file, data, ';');
+    person->setStreet(data);
+    //housenum
+    getline(file, data, ';');
+    person->setHouseNumber(data);
+    //city
+    getline(file, data, ';');
+    person->setCity(data);
+    //country
+    getline(file, data, '\n');
+    person->setCountry(data);
+}
+
 void Database::readFile(std::string filename)
 {
-    
-    
     std::fstream file;
     file.open(filename, std::ios::in);
     std::string data="";
@@ -82,52 +106,12 @@ void Database::readFile(std::string filename)
             Parcel * element = dynamic_cast<Parcel*>(element);
         }
 
-        //nadawca
         Person* sender = new Person;
-        //name
-        getline(file, data, ';');
-        sender->setName(data);
-        //phone
-        getline(file, data, ';');
-        sender->setPhoneNumber(data);
-        //postcode
-        getline(file, data, ';');
-        sender->setPostCode(data);
-        //street
-        getline(file, data, ';');
-        sender->setStreet(data);
-        //housenum
-        getline(file, data, ';');
-        sender->setHouseNumber(data);
-        //city
-        getline(file, data, ';');
-        sender->setCity(data);
-        //country
-        getline(file, data, '\n');
-        sender->setCountry(data);
+        getPersonalData(file, sender);
 
         Person* recipient = new Person;
-        //name
-        getline(file, data, ';');
-        recipient->setName(data);
-        //phone
-        getline(file, data, ';');
-        recipient->setPhoneNumber(data);
-        //postcode
-        getline(file, data, ';');
-        recipient->setPostCode(data);
-        //street
-        getline(file, data, ';');
-        recipient->setStreet(data);
-        //housenum
-        getline(file, data, ';');
-        recipient->setHouseNumber(data);
-        //city
-        getline(file, data, ';');
-        recipient->setCity(data);
-        //country
-        getline(file, data, '\n');
-        recipient->setCountry(data);
+        getPersonalData(file, recipient);
+
 
         getline(file, data, ';');
         Date* postDate = new Date(data);
@@ -149,15 +133,24 @@ void Database::readFile(std::string filename)
         if(element->stringIDtoInt(data) > lastID)
             lastID = element->stringIDtoInt(data);
 
+        if(receiptDate)
+        if((Date::getCurrentDate() - receiptDate)>14)
+        {
+            delete element;
+            element = nullptr;
+            continue;
+        }
+
+        if(!isUpToDate(deadlineDate))
+            element->setStatus("uplynal termin odbioru");
+
         element->setSender(sender);
         element->setRecipient(recipient);
         element->setPostDate(postDate);
         element->setDateOfReceipt(receiptDate);
         element->setDateOfReceiptAtTheFacility(deadlineDate);
 
-        //sprawdzenie czy termin na odbiór paczki nie został przekroczony
-        if(!isUpToDate(deadlineDate))
-            element->setStatus("odeslano do nadawcy");
+
 
         //dodawanie nowego elementu do listy
         if(typeid (*element).name() == typeid(Letter).name())
