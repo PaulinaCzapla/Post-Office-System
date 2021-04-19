@@ -115,6 +115,12 @@ void LocalDatabaseWidget::loadTable(List<T> * shipmentsList, QTableWidget *& tab
             j++;
             i++;
 
+            if(status == "uplynal termin odbioru")
+            {
+            item5->setForeground(Qt::red);
+            item2->setForeground(Qt::red);
+            }
+
             head = head->getNext();
         }
         tab->resizeColumnsToContents();
