@@ -482,8 +482,10 @@ void MainWindow::on_comboBoxRegistered_currentIndexChanged(int index)
 {
     qDebug() << "registered changed";
 
-    if(indexes[isRegistered] == index)
-    changePrice();
+   if(indexes[isRegistered] != index)
+  {
+       changePrice();
+   }
 
     indexes[isRegistered] = index;
 }
@@ -492,8 +494,10 @@ void MainWindow::on_comboBoxRegistered_currentIndexChanged(int index)
 void MainWindow::on_comboBoxPriority_currentIndexChanged(int index)
 {
     qDebug() << "priority changed";
-    if(indexes[isPriority] == index)
+    if(indexes[isPriority] != index)
+    {
     changePrice();
+    }
 
     indexes[isPriority] = index;
 }
@@ -501,8 +505,10 @@ void MainWindow::on_comboBoxPriority_currentIndexChanged(int index)
 void MainWindow::on_comboBoxSize_currentIndexChanged(int index)
 {
     qDebug() << "size changed";
-    if(indexes[shipmentTypeInfo::size] == index)
+    if(indexes[shipmentTypeInfo::size] != index)
+    {
     changePrice();
+    }
 
     indexes[shipmentTypeInfo::size] = index;
 }
@@ -510,8 +516,11 @@ void MainWindow::on_comboBoxSize_currentIndexChanged(int index)
 void MainWindow::on_comboBoxWeight_currentIndexChanged(int index)
 {
     qDebug() << "weight changed";
-    if(indexes[weight] == index)
+
+    if(indexes[weight] != index)
+    {
     changePrice();
+    }
 
     indexes[weight] = index;
 }
@@ -520,7 +529,9 @@ void MainWindow::on_comboBoxCountry_currentIndexChanged(int index)
 {
     qDebug() << "country changed";
     if(indexes[shipmentTypeInfo::country] == index)
+    {
     changePrice();
+    }
 
     indexes[shipmentTypeInfo::country] = index;
 }
