@@ -168,8 +168,6 @@ void ShipmentFormWidget::loadDataToComboBoxes(std::map<shipmentTypeInfo,QComboBo
 
      if(comboBoxes[type]->currentIndex()==1)
      {
-
-
         if(comboBoxes[size]->count() != 3)
          {
          comboBoxes[size]->clear();

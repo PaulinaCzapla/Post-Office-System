@@ -11,7 +11,7 @@ class Node
 
 public:
     Node(T);
-    Node(Node&);
+    Node(Node*);
     Node(T, Node<T>*, Node<T>*);
     void setNext(Node*);
     Node * getNext();
@@ -34,7 +34,7 @@ Node<T>::Node(T data_)
 }
 
 template <typename T>
-Node<T>::Node(Node<T>& node_)
+Node<T>::Node(Node<T>* node_)
 {
     this->data = node_->data;
     this->next = node_->next;

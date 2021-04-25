@@ -91,6 +91,27 @@ private slots:
 
     void changePrice();
 
+
+    void on_tableWidgetLocalDatabase_cellClicked(int row, int column);
+
+    void on_tableWidgetMainDatabase_cellClicked(int row, int column);
+
+    void on_comboBox_SetStatus_LocalDatabase_currentIndexChanged(const QString &arg1);
+
+    void on_comboBox_SetStatus_MainDatabase_currentIndexChanged(const QString &arg1);
+
+    void on_comboBox_SearchFor_MainDatabase_activated(int index);
+
+    void on_comboBox_SearchForStatus_MainDatabase_activated(int index);
+
+    void on_lineEdit_SearchMainDatabase_textChanged(const QString &arg1);
+
+    void on_comboBox_SearchFor_LocalDatabase_activated(int index);
+
+    void on_lineEdit_SearchLocalDatabase_textChanged(const QString &arg1);
+
+    void on_comboBox_SearchForStatus_LocalDatabase_activated(int index);
+
 public:
     Ui::MainWindow *ui;
 

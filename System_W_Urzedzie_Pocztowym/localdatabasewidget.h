@@ -2,22 +2,32 @@
 #define LOCALDATABASEWIDGET_H
 
 #include "mainmenuwidget.h"
-
+#include "shipmentstatusmanager.h"
 
 class LocalDatabaseWidget
 {
 protected:
-
+    ShipmentStatusManager * shipmentStatuses;
 public:
+    LocalDatabaseWidget() : shipmentStatuses(new ShipmentStatusManager){};
+
     template <typename T>
     void loadTable(List<T>*, QTableWidget *&);
+
     void adjustTable(QTableWidget *&);
     void displaySelectedRows(QTableWidget *&, std::list<Shipment*>&);
-  //  void removeRows(QTableWidget *&, const QString& );
     void createTypeList(Letter &, QStringList& );
     void createTypeList(Parcel &, QStringList& );
     void createTypesList(Shipment*, QStringList&);
 
+    void loadComboBoxChangeStatus(QString, QComboBox*&);
+
+
+    void changeStatus(Database* ,Database* , QString, QString);
+    void checkIfRelocate(Database*,Database*, QString, QString);
+
+private:
+    QStringList getPersonData(Person*);
 };
 
 
@@ -40,22 +50,8 @@ void LocalDatabaseWidget::loadTable(List<T> * shipmentsList, QTableWidget *& tab
             auto data = head->getCurrentData();
             createTypesList(&data, type);
 
-            sender.push_back(QString::fromStdString(data.getSender()->getName()));
-            sender.push_back(QString::fromStdString(data.getSender()->getPhoneNumber()));
-            sender.push_back(QString::fromStdString(data.getSender()->getCountry()));
-            sender.push_back(QString::fromStdString(data.getSender()->getCity()));
-            sender.push_back(QString::fromStdString(data.getSender()->getStreet() + " " + data.getSender()->getHouseNumber()));
-            sender.push_back(QString::fromStdString(data.getSender()->getPostCode()));
-            sender.push_back(QString::fromStdString(data.getSender()->getCountry()));
-
-
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getName()));
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getPhoneNumber()));
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getCountry()));
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getCity()));
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getStreet() + " " + data.getRecipient()->getHouseNumber()));
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getPostCode()));
-            recipient.push_back(QString::fromStdString(data.getRecipient()->getCountry()));
+            sender = getPersonData(data.getSender());
+            recipient = getPersonData(data.getRecipient());
 
             ID = QString::fromStdString(data.getStringID());
             status = QString::fromStdString(data.getStatus());
@@ -65,35 +61,36 @@ void LocalDatabaseWidget::loadTable(List<T> * shipmentsList, QTableWidget *& tab
 
             tab->insertRow(i);
 
-            QTableWidgetItem* item = new QTableWidgetItem;
-            item->setText(ID);
-            item->setTextAlignment(Qt::AlignCenter);
-            tab->setItem(i,j,item);
+            QTableWidgetItem* itemID = new QTableWidgetItem;
+            itemID->setText(ID);
+            itemID->setTextAlignment(Qt::AlignCenter);
+            tab->setItem(i,j,itemID);
             j++;
 
-            QComboBox* combo = new QComboBox();
 
-            combo->insertItems(0,type);
-            combo->setStyleSheet("background-color: white ");
-            tab->setCellWidget(i,j, combo);
+            QTableWidgetItem* itemType = new QTableWidgetItem;
+            itemType->setText(type[0] + "\n" + type[1]+ "\n" + type[2]+ "\n" + type[3]);
+            itemType->setTextAlignment(Qt::AlignCenter);
+            tab->setItem(i,j,itemType);
             j++;
 
-            QTableWidgetItem* item2 = new QTableWidgetItem;
-            item2->setText(status);
-            item2->setTextAlignment(Qt::AlignCenter);
-            tab->setItem(i,j,item2);
+
+            QTableWidgetItem* itemStatus = new QTableWidgetItem;
+            itemStatus->setText(status);
+            itemStatus->setTextAlignment(Qt::AlignCenter);
+            tab->setItem(i,j,itemStatus);
             j++;
 
-            QComboBox* combo2 = new QComboBox();
-            combo2->setStyleSheet("background-color: white ");
-            combo2->insertItems(0,sender);
-            tab->setCellWidget(i,j, combo2);
-
+            QTableWidgetItem* itemSender = new QTableWidgetItem;
+            itemSender->setText(sender[0] + "\n" + sender[1]+ "\n" +sender[2]+ "\n" + sender[3]+ "\n" + sender[4]+ "\n" + sender[5]);
+            itemSender->setTextAlignment(Qt::AlignCenter);
+            tab->setItem(i,j,itemSender);
             j++;
-            QComboBox* combo3 = new QComboBox();
-            combo3->setStyleSheet("background-color: white ");
-            combo3->insertItems(0,recipient);
-            tab->setCellWidget(i,j, combo3);
+
+            QTableWidgetItem* itemRecipient = new QTableWidgetItem;
+            itemRecipient->setText(recipient[0] + "\n" + recipient[1]+ "\n" +recipient[2]+ "\n" + recipient[3]+ "\n" + recipient[4]+ "\n" + recipient[5]);
+            itemRecipient->setTextAlignment(Qt::AlignCenter);
+            tab->setItem(i,j,itemRecipient);
             j++;
 
             QTableWidgetItem* item3 = new QTableWidgetItem;
@@ -118,12 +115,13 @@ void LocalDatabaseWidget::loadTable(List<T> * shipmentsList, QTableWidget *& tab
             if(status == "uplynal termin odbioru")
             {
             item5->setForeground(Qt::red);
-            item2->setForeground(Qt::red);
+            itemStatus->setForeground(Qt::red);
             }
 
             head = head->getNext();
         }
         tab->resizeColumnsToContents();
+        tab->resizeRowsToContents();
 }
 
 #endif // LOCALDATABASEWIDGET_H

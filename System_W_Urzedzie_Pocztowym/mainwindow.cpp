@@ -69,6 +69,7 @@ void MainWindow::on_pushButtonLocalDatabase_clicked()
     localDatabaseWidget->loadTable<Letter>(localDatabase->getLetters(), ui->tableWidgetLocalDatabase);
     localDatabaseWidget->loadTable<Parcel>(localDatabase->getParcels(), ui->tableWidgetLocalDatabase);
     ui->stackedWidget->setCurrentIndex(3);
+    ui->comboBox_SetStatus_LocalDatabase->setDisabled(true);
 }
 
 void MainWindow::on_pushButtonMainDatabase_clicked()
@@ -77,6 +78,7 @@ void MainWindow::on_pushButtonMainDatabase_clicked()
     mainDatabaseWidget->loadTable<Letter>(mainDatabase->getLetters(), ui->tableWidgetMainDatabase);
     mainDatabaseWidget->loadTable<Parcel>(mainDatabase->getParcels(), ui->tableWidgetMainDatabase);
     ui->stackedWidget->setCurrentIndex(4);
+    ui->comboBox_SetStatus_MainDatabase->setDisabled(true);
 }
 
 void MainWindow::closeEvent (QCloseEvent *event)
@@ -322,6 +324,10 @@ void MainWindow::on_pushButtonGoBack_LocalDatabase_clicked()
 {
     ui->stackedWidget->setCurrentIndex(0);
     ui->tableWidgetLocalDatabase->setRowCount(0);
+    ui->comboBox_SetStatus_LocalDatabase->blockSignals(true);
+    ui->comboBox_SetStatus_LocalDatabase->clear();
+    ui->comboBox_SetStatus_LocalDatabase->setDisabled(true);
+    ui->comboBox_SetStatus_LocalDatabase->blockSignals(false);
 }
 
 void MainWindow::on_pushButton_FinishAddingNewRecord_clicked()
@@ -335,6 +341,11 @@ void MainWindow::on_pushButtonGoBack_MainDatabase_clicked()
 {
     ui->stackedWidget->setCurrentIndex(0);
     ui->tableWidgetMainDatabase->setRowCount(0);
+
+    ui->comboBox_SetStatus_MainDatabase->blockSignals(true);
+    ui->comboBox_SetStatus_MainDatabase->clear();
+    ui->comboBox_SetStatus_MainDatabase->setDisabled(true);
+    ui->comboBox_SetStatus_MainDatabase->blockSignals(false);
 }
 
 
@@ -545,4 +556,87 @@ void MainWindow::changePrice()
 
     if(shipmentType)
     ui->labelPrice->setText( shipmentPricesManager->returnProperPrice(shipmentPricesManager->getShipmentPrice(shipmentType)) + " zł");
+}
+
+
+void MainWindow::on_tableWidgetLocalDatabase_cellClicked(int row, int column)
+{
+    ui->comboBox_SetStatus_LocalDatabase->setDisabled(false);
+    QString  status = ui->tableWidgetLocalDatabase->item(row,2)->text();
+    localDatabaseWidget->loadComboBoxChangeStatus(status, ui->comboBox_SetStatus_LocalDatabase);
+}
+
+void MainWindow::on_tableWidgetMainDatabase_cellClicked(int row, int column)
+{
+    ui->comboBox_SetStatus_MainDatabase->setDisabled(false);
+    QString status = ui->tableWidgetMainDatabase->item(row,2)->text();
+    mainDatabaseWidget->loadComboBoxChangeStatus(status, ui->comboBox_SetStatus_MainDatabase);
+}
+
+void MainWindow::on_comboBox_SetStatus_LocalDatabase_currentIndexChanged(const QString &arg1)
+{
+    QString id =ui->tableWidgetLocalDatabase->item(ui->tableWidgetLocalDatabase->currentRow(),0)->text();
+    if(id != "")
+    {
+    localDatabaseWidget->changeStatus(mainDatabase, localDatabase, arg1,id);
+    on_pushButtonLocalDatabase_clicked();
+    }
+}
+
+void MainWindow::on_comboBox_SetStatus_MainDatabase_currentIndexChanged(const QString &arg1)
+{
+    QString  id =ui->tableWidgetMainDatabase->item(ui->tableWidgetMainDatabase->currentRow(),0)->text();
+    if(id!="")
+    {
+    mainDatabaseWidget->changeStatus(mainDatabase, localDatabase, arg1,id);
+    on_pushButtonMainDatabase_clicked();
+    }
+}
+
+void MainWindow::on_comboBox_SearchFor_MainDatabase_activated(int index)
+{
+    ui->comboBox_SetStatus_MainDatabase->blockSignals(true);
+    ui->comboBox_SetStatus_MainDatabase->clear();
+    ui->comboBox_SetStatus_MainDatabase->setDisabled(true);
+    ui->comboBox_SetStatus_MainDatabase->blockSignals(false);
+}
+
+void MainWindow::on_comboBox_SearchForStatus_MainDatabase_activated(int index)
+{
+    ui->comboBox_SetStatus_MainDatabase->blockSignals(true);
+    ui->comboBox_SetStatus_MainDatabase->clear();
+    ui->comboBox_SetStatus_MainDatabase->setDisabled(true);
+    ui->comboBox_SetStatus_MainDatabase->blockSignals(false);
+}
+
+void MainWindow::on_lineEdit_SearchMainDatabase_textChanged(const QString &arg1)
+{
+    ui->comboBox_SetStatus_MainDatabase->blockSignals(true);
+    ui->comboBox_SetStatus_MainDatabase->clear();
+    ui->comboBox_SetStatus_MainDatabase->setDisabled(true);
+    ui->comboBox_SetStatus_MainDatabase->blockSignals(false);
+}
+
+void MainWindow::on_comboBox_SearchFor_LocalDatabase_activated(int index)
+{
+    ui->comboBox_SetStatus_LocalDatabase->blockSignals(true);
+    ui->comboBox_SetStatus_LocalDatabase->clear();
+    ui->comboBox_SetStatus_LocalDatabase->setDisabled(true);
+    ui->comboBox_SetStatus_LocalDatabase->blockSignals(false);
+}
+
+void MainWindow::on_lineEdit_SearchLocalDatabase_textChanged(const QString &arg1)
+{
+    ui->comboBox_SetStatus_LocalDatabase->blockSignals(true);
+    ui->comboBox_SetStatus_LocalDatabase->clear();
+    ui->comboBox_SetStatus_LocalDatabase->setDisabled(true);
+    ui->comboBox_SetStatus_LocalDatabase->blockSignals(false);
+}
+
+void MainWindow::on_comboBox_SearchForStatus_LocalDatabase_activated(int index)
+{
+    ui->comboBox_SetStatus_LocalDatabase->blockSignals(true);
+    ui->comboBox_SetStatus_LocalDatabase->clear();
+    ui->comboBox_SetStatus_LocalDatabase->setDisabled(true);
+    ui->comboBox_SetStatus_LocalDatabase->blockSignals(false);
 }

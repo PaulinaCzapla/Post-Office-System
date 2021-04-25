@@ -34,6 +34,8 @@ public:
     void loadComboBoxSearch(QComboBox*&);
     void loadComboBoxSearchStatus(QComboBox*&);
 
+
+
     ~ShipmentFormWidget();
     void createShipmentType(bool&);
 };

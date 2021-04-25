@@ -199,6 +199,34 @@ void Database::addNewRecord(Parcel * data)
     parcels->addFront(node);
 
 }
+
+void Database::addRecord(Node<Letter>* node)
+{
+    letters->addFront(node);
+}
+
+void Database::addRecord(Node<Parcel>* node)
+{
+    parcels->addFront(node);
+}
+
+
+void Database::changeStatus( int id, QString status)
+{
+    auto tmp = letters->getElement(id);
+    if(tmp)
+    {
+        tmp->getCurrentData().setStatus(status.toStdString());
+    }
+    else
+    {
+        auto tmp = parcels->getElement(id);
+        if(tmp)
+    {
+        tmp->getCurrentData().setStatus(status.toStdString());
+    }
+    }
+}
        //nieprzetestowane
 void Database::writeFile()
 {
@@ -376,8 +404,3 @@ Database::~Database()
     if(parcels)
         delete parcels;
 }
-
-
-
-
-

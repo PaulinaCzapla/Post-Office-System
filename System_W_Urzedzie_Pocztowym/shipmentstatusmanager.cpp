@@ -25,7 +25,9 @@ ShipmentStatusManager::ShipmentStatusManager() // działa
                 
                 statuses.insert(std::pair<int, ShipmentStatus*>(tmpID, status));
                 tmpVec.erase(tmpVec.begin(), tmpVec.end());
-                
+
+                statusesIDs.insert(std::pair<std::string, int>(statusName,tmpID));
+
                 tmpID=0;
                 statusName = "";
                 s = "";
@@ -36,7 +38,12 @@ ShipmentStatusManager::ShipmentStatusManager() // działa
 
 std::string ShipmentStatusManager::changeStatus()
 {
-return "";
+    return "";
+}
+
+int ShipmentStatusManager::getStatusID(std::string status)
+{
+    return statusesIDs[status];
 }
 
 ShipmentStatus* ShipmentStatusManager::findStatus(int id)
@@ -45,14 +52,14 @@ ShipmentStatus* ShipmentStatusManager::findStatus(int id)
     return found->second;
 }
 
-std::vector<std::string> ShipmentStatusManager::returnAvailableStatuses(ShipmentStatus& _status)
+QStringList ShipmentStatusManager::returnAvailableStatuses(std::string _status)
 {
-    auto vec = _status.getAvailableStatuses();
+    auto vec = statuses[getStatusID(_status)]->getAvailableStatuses();
     std::vector<int>::iterator itVec = vec.begin();
-    std::vector<std::string> result;
+    QStringList result;
     do
     {
-        result.push_back(findStatus(*itVec)->getStatus());
+        result.push_back(QString::fromStdString(findStatus(*itVec)->getStatus()));
         itVec++;
 
     }  while(itVec!=vec.end());

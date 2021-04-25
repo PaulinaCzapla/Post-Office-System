@@ -22,12 +22,18 @@ public:
     bool isUpToDate(Date*);
     void addNewRecord(Letter*);
     void addNewRecord(Parcel*);
+
+
+    void addRecord(Node<Letter>*);
+    void addRecord(Node<Parcel>*);
+
     List<Letter>* getLetters() {return letters;};
     List<Parcel>* getParcels() {return parcels;};
     static int getLastID() {return lastID;};
     void findShipment(std::string&);
     void decrementLastID(){lastID--;};
 
+    void changeStatus(int, QString);
 
     std::list<Shipment*> searchByID(const QString&);
     std::list<Shipment*> searchByPhoneNum(const QString&, bool recipient);
@@ -38,6 +44,9 @@ public:
 
     void getPersonalData(std::fstream&, Person*&);
 };
+
+
+
 
 
 
