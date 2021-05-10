@@ -18,10 +18,8 @@ public:
     std::list<Node <T>*> getElements(std::string);
     Node <T>* getElement(T&);
     Node <T>* getElement(int);
-    T pop();
     void setCounter(int);
     void increase_counter();
-    T& getData(Node<T>*);
     ~List();
 };
 
@@ -52,8 +50,6 @@ Node<T>* List<T>::addFront(Node<T>* node_)
 template<typename T>
 Node<T>* List<T>::deleteElement(Node<T>* node_)
 {
-    Node<T>* tmp;
-
     if (node_->getPrev())
         node_->getPrev()->setNext(node_->getNext());
     else
@@ -76,7 +72,9 @@ std::list<Node <T>*>  List<T>::getElements(std::string name)
     while (tmp)
     {
         if (tmp->getCurrentData() == name)
+        {
             returnData.push_back(tmp);
+        }
 
             tmp = tmp->getNext();
     }
@@ -122,21 +120,6 @@ int List<T>::size()
 }
 
 template<typename T>
-T List<T>::pop()
-{
-     if(head)
-     {
-       auto p = head->next;
-       auto tp = head->data();
-       delete head;
-       head = nullptr;
-       head = p;
-       counter--;
-       return tp;
-     }
-  }
-
-template<typename T>
 void List<T>::setCounter(int counter_)
 {
     this->counter = counter_;
@@ -146,12 +129,6 @@ template<typename T>
 void List<T>::increase_counter()
 {
     this->counter++;
-}
-
-template<typename T>
-T& List<T>::getData(Node<T>* node)
-{
-    return node->getCurrentData();
 }
 
 template<typename T>

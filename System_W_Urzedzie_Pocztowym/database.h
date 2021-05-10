@@ -3,7 +3,7 @@
 
 #include "letter.h"
 #include "parcel.h"
-//#include "shipmentformwidget.h"
+
 #include "list.h"
 #include <list>
 
@@ -16,13 +16,15 @@ class Database
 
     void writeFile();
     void readFile(std::string);
+    bool isUpToDate(Date*);
+    void getPersonalData(std::fstream&, Person*&);
+
 public:
 
     Database(std::string);
-    bool isUpToDate(Date*);
-    void addNewRecord(Letter*);
-    void addNewRecord(Parcel*);
 
+    void addNewRecord(Letter*, bool newId = 1);
+    void addNewRecord(Parcel*, bool newId = 1);
 
     void addRecord(Node<Letter>*);
     void addRecord(Node<Parcel>*);
@@ -30,10 +32,10 @@ public:
     List<Letter>* getLetters() {return letters;};
     List<Parcel>* getParcels() {return parcels;};
     static int getLastID() {return lastID;};
-    void findShipment(std::string&);
     void decrementLastID(){lastID--;};
 
     void changeStatus(int, QString);
+    void returnToRecipient (Shipment*);
 
     std::list<Shipment*> searchByID(const QString&);
     std::list<Shipment*> searchByPhoneNum(const QString&, bool recipient);
@@ -42,7 +44,7 @@ public:
 
     ~Database();
 
-    void getPersonalData(std::fstream&, Person*&);
+
 };
 
 

@@ -55,7 +55,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButtonRegisterParcel_clicked()
 {
-    auto comboBoxes = getFormDataFromComboBoxes();
+    getFormDataFromComboBoxes();
     shipmentForm->loadDataToComboBoxes(comboBoxes);
     ui->comboBoxShipmentType->setCurrentIndex(0);
 
@@ -118,13 +118,12 @@ void MainWindow::invalidDataDialog_pop()
 void MainWindow::on_pushButtonCancel_Page1_clicked()
 {
     clearForm();
+    shipmentForm->setDefaultData(comboBoxes);
     ui->stackedWidget->setCurrentIndex(0);
 }
 
-std::map<shipmentTypeInfo,QComboBox *> MainWindow::getFormDataFromComboBoxes()
+void MainWindow::getFormDataFromComboBoxes()
 {
-    std::map<shipmentTypeInfo, QComboBox*> comboBoxes;
-
     comboBoxes.insert(std::pair<shipmentTypeInfo, QComboBox*> (type, ui->comboBoxShipmentType));
     comboBoxes.insert(std::pair<shipmentTypeInfo, QComboBox*>(isRegistered, ui->comboBoxRegistered));
     comboBoxes.insert(std::pair<shipmentTypeInfo, QComboBox*>(isPriority, ui->comboBoxPriority));
@@ -133,7 +132,6 @@ std::map<shipmentTypeInfo,QComboBox *> MainWindow::getFormDataFromComboBoxes()
     comboBoxes.insert(std::pair<shipmentTypeInfo, QComboBox*>(shipmentTypeInfo::country, ui->comboBoxCountry));
 
     shipmentForm->loadDataToComboBoxes(comboBoxes);
-    return comboBoxes;
 }
 
 void MainWindow::on_pushButtonConfirmAndGo_clicked()
@@ -141,7 +139,7 @@ void MainWindow::on_pushButtonConfirmAndGo_clicked()
     std::string type = ui->comboBoxShipmentType->currentText().toStdString();
     if(!type.empty())
     {
-        auto comboBoxes = getFormDataFromComboBoxes();
+        getFormDataFromComboBoxes();
         auto shipmentType = shipmentForm->saveComboBoxInfo(comboBoxes);
 
     ui->labelPrice->setText( shipmentPricesManager->returnProperPrice(shipmentPricesManager->getShipmentPrice(shipmentType)) + " zł");
@@ -198,7 +196,6 @@ void MainWindow::checkInvalidDataRecipient(std::vector<dataInfo> * invalidData)
 
           if(*it == houseNumber)
               ui->lineEdit_RecipientHouseNum->setStyleSheet("border: 2px solid rgb(209, 7, 10)");
-
       }
     }
 }
@@ -281,10 +278,8 @@ void MainWindow::on_pushButtonConfirm_Page2_clicked()
     std::map<dataInfo, std::string> recipient;
     getFormData(sender, recipient);
 
-    //para wektorów przechowująca informacje o niepoprawnych danych
     std::pair<std::vector<dataInfo>*, std::vector<dataInfo>*>* invalidData = shipmentForm->processFormData(sender, recipient, ui->comboBoxCountry->currentText().toStdString());
 
-    //warunek dla nieprawidłowych danych w formularzu
     if(!invalidData->first->empty() || !invalidData->second->empty())
     {
         invalidDataDialog_pop();
@@ -293,17 +288,14 @@ void MainWindow::on_pushButtonConfirm_Page2_clicked()
         sender.clear();
         recipient.clear();
 
-        //zwolnienie pamięci zaalokowanej w processFormData
         delete invalidData->first;
         delete invalidData->second;
         delete invalidData;
     }
     else
     {
-        //dodanie rekordu z poprawnymi danymi
      shipmentForm->insertRecord(sender, recipient, localDatabase, mainDatabase);
-        // ekran z potwierdzeniem dodania
-     //wyświetlanie ID przesyłki
+
      std::string str = Shipment::intIDtoString(Database::getLastID());
      QString stde(str.c_str());
      ui->label_ShipmentID_2->setText(stde);
@@ -315,15 +307,13 @@ void MainWindow::on_pushButtonConfirm_Page2_clicked()
 void MainWindow::on_pushButtonGoBack_Page2_clicked(){ ui->stackedWidget->setCurrentIndex(1);}
 
 
-void MainWindow::on_pushButtonPrintLabel_clicked()
-{
-
-}
 
 void MainWindow::on_pushButtonGoBack_LocalDatabase_clicked()
 {
     ui->stackedWidget->setCurrentIndex(0);
     ui->tableWidgetLocalDatabase->setRowCount(0);
+    ui->comboBox_SearchForStatus_LocalDatabase->setCurrentIndex(0);
+    ui->comboBox_SearchFor_LocalDatabase->setCurrentIndex(0);
     ui->comboBox_SetStatus_LocalDatabase->blockSignals(true);
     ui->comboBox_SetStatus_LocalDatabase->clear();
     ui->comboBox_SetStatus_LocalDatabase->setDisabled(true);
@@ -332,8 +322,7 @@ void MainWindow::on_pushButtonGoBack_LocalDatabase_clicked()
 
 void MainWindow::on_pushButton_FinishAddingNewRecord_clicked()
 {
-    clearForm();
-    ui->stackedWidget->setCurrentIndex(0);
+    on_pushButtonCancel_Page1_clicked();
 }
 
 
@@ -341,7 +330,8 @@ void MainWindow::on_pushButtonGoBack_MainDatabase_clicked()
 {
     ui->stackedWidget->setCurrentIndex(0);
     ui->tableWidgetMainDatabase->setRowCount(0);
-
+    ui->comboBox_SearchForStatus_MainDatabase->setCurrentIndex(0);
+    ui->comboBox_SearchFor_MainDatabase->setCurrentIndex(0);
     ui->comboBox_SetStatus_MainDatabase->blockSignals(true);
     ui->comboBox_SetStatus_MainDatabase->clear();
     ui->comboBox_SetStatus_MainDatabase->setDisabled(true);
@@ -437,28 +427,40 @@ void MainWindow::on_comboBox_SearchFor_MainDatabase_currentIndexChanged(int inde
 {
     if(index == 0)
     {
+        ui->lineEdit_SearchMainDatabase->clear();
         ui->tableWidgetMainDatabase->setRowCount(0);
         mainDatabaseWidget->loadTable<Letter>(mainDatabase->getLetters(), ui->tableWidgetMainDatabase);
         mainDatabaseWidget->loadTable<Parcel>(mainDatabase->getParcels(), ui->tableWidgetMainDatabase);
     }
     if(index == 1)
+    {
         ui->comboBox_SearchForStatus_MainDatabase->setDisabled(true);
+        ui->comboBox_SearchForStatus_MainDatabase->setCurrentIndex(0);
+    }
     else
+    {
         ui->comboBox_SearchForStatus_MainDatabase->setDisabled(false);
+    }
 }
 
 void MainWindow::on_comboBox_SearchFor_LocalDatabase_currentIndexChanged(int index)
 {
     if(index == 0)
     {
+        ui->lineEdit_SearchLocalDatabase->clear();
         ui->tableWidgetLocalDatabase->setRowCount(0);
         localDatabaseWidget->loadTable<Letter>(localDatabase->getLetters(), ui->tableWidgetLocalDatabase);
         localDatabaseWidget->loadTable<Parcel>(localDatabase->getParcels(), ui->tableWidgetLocalDatabase);
     }
     if(index == 1)
+    {
         ui->comboBox_SearchForStatus_LocalDatabase->setDisabled(true);
+        ui->comboBox_SearchForStatus_LocalDatabase->setCurrentIndex(0);
+    }
     else
+    {
         ui->comboBox_SearchForStatus_LocalDatabase->setDisabled(false);
+    }
 }
 
 void MainWindow::on_comboBox_SearchForStatus_LocalDatabase_currentIndexChanged(int index)
@@ -476,10 +478,8 @@ void MainWindow::on_comboBox_SearchForStatus_MainDatabase_currentIndexChanged(in
 
 void MainWindow::on_comboBoxShipmentType_currentIndexChanged(const QString &arg1)
 {
-    qDebug() << "type changed";
-
      ui->labelPrice->clear();
-     auto comboBoxes = getFormDataFromComboBoxes();
+     getFormDataFromComboBoxes();
 
      if(arg1!="")
      {
@@ -491,8 +491,6 @@ void MainWindow::on_comboBoxShipmentType_currentIndexChanged(const QString &arg1
 
 void MainWindow::on_comboBoxRegistered_currentIndexChanged(int index)
 {
-    qDebug() << "registered changed";
-
    if(indexes[isRegistered] != index)
   {
        changePrice();
@@ -504,10 +502,9 @@ void MainWindow::on_comboBoxRegistered_currentIndexChanged(int index)
 
 void MainWindow::on_comboBoxPriority_currentIndexChanged(int index)
 {
-    qDebug() << "priority changed";
     if(indexes[isPriority] != index)
     {
-    changePrice();
+        changePrice();
     }
 
     indexes[isPriority] = index;
@@ -515,10 +512,9 @@ void MainWindow::on_comboBoxPriority_currentIndexChanged(int index)
 
 void MainWindow::on_comboBoxSize_currentIndexChanged(int index)
 {
-    qDebug() << "size changed";
     if(indexes[shipmentTypeInfo::size] != index)
     {
-    changePrice();
+        changePrice();
     }
 
     indexes[shipmentTypeInfo::size] = index;
@@ -526,11 +522,9 @@ void MainWindow::on_comboBoxSize_currentIndexChanged(int index)
 
 void MainWindow::on_comboBoxWeight_currentIndexChanged(int index)
 {
-    qDebug() << "weight changed";
-
     if(indexes[weight] != index)
     {
-    changePrice();
+        changePrice();
     }
 
     indexes[weight] = index;
@@ -538,10 +532,9 @@ void MainWindow::on_comboBoxWeight_currentIndexChanged(int index)
 
 void MainWindow::on_comboBoxCountry_currentIndexChanged(int index)
 {
-    qDebug() << "country changed";
-    if(indexes[shipmentTypeInfo::country] == index)
+    if(indexes[shipmentTypeInfo::country] != index)
     {
-    changePrice();
+        changePrice();
     }
 
     indexes[shipmentTypeInfo::country] = index;
@@ -551,7 +544,7 @@ void MainWindow::changePrice()
 {
     ui->labelPrice->clear();
 
-    auto comboBoxes = getFormDataFromComboBoxes();
+    getFormDataFromComboBoxes();
     auto shipmentType = shipmentForm->saveComboBoxInfo(comboBoxes);
 
     if(shipmentType)
@@ -559,14 +552,14 @@ void MainWindow::changePrice()
 }
 
 
-void MainWindow::on_tableWidgetLocalDatabase_cellClicked(int row, int column)
+void MainWindow::on_tableWidgetLocalDatabase_cellClicked(int row, int /* unused */)
 {
     ui->comboBox_SetStatus_LocalDatabase->setDisabled(false);
     QString  status = ui->tableWidgetLocalDatabase->item(row,2)->text();
     localDatabaseWidget->loadComboBoxChangeStatus(status, ui->comboBox_SetStatus_LocalDatabase);
 }
 
-void MainWindow::on_tableWidgetMainDatabase_cellClicked(int row, int column)
+void MainWindow::on_tableWidgetMainDatabase_cellClicked(int row, int /* unused */)
 {
     ui->comboBox_SetStatus_MainDatabase->setDisabled(false);
     QString status = ui->tableWidgetMainDatabase->item(row,2)->text();
@@ -593,7 +586,7 @@ void MainWindow::on_comboBox_SetStatus_MainDatabase_currentIndexChanged(const QS
     }
 }
 
-void MainWindow::on_comboBox_SearchFor_MainDatabase_activated(int index)
+void MainWindow::on_comboBox_SearchFor_MainDatabase_activated(int /* unused */)
 {
     ui->comboBox_SetStatus_MainDatabase->blockSignals(true);
     ui->comboBox_SetStatus_MainDatabase->clear();
@@ -601,7 +594,7 @@ void MainWindow::on_comboBox_SearchFor_MainDatabase_activated(int index)
     ui->comboBox_SetStatus_MainDatabase->blockSignals(false);
 }
 
-void MainWindow::on_comboBox_SearchForStatus_MainDatabase_activated(int index)
+void MainWindow::on_comboBox_SearchForStatus_MainDatabase_activated(int /* unused */)
 {
     ui->comboBox_SetStatus_MainDatabase->blockSignals(true);
     ui->comboBox_SetStatus_MainDatabase->clear();
@@ -609,7 +602,7 @@ void MainWindow::on_comboBox_SearchForStatus_MainDatabase_activated(int index)
     ui->comboBox_SetStatus_MainDatabase->blockSignals(false);
 }
 
-void MainWindow::on_lineEdit_SearchMainDatabase_textChanged(const QString &arg1)
+void MainWindow::on_lineEdit_SearchMainDatabase_textChanged(const QString &/* unused */)
 {
     ui->comboBox_SetStatus_MainDatabase->blockSignals(true);
     ui->comboBox_SetStatus_MainDatabase->clear();
@@ -617,7 +610,15 @@ void MainWindow::on_lineEdit_SearchMainDatabase_textChanged(const QString &arg1)
     ui->comboBox_SetStatus_MainDatabase->blockSignals(false);
 }
 
-void MainWindow::on_comboBox_SearchFor_LocalDatabase_activated(int index)
+void MainWindow::on_comboBox_SearchFor_LocalDatabase_activated(int /* unused */)
+{
+    ui->comboBox_SetStatus_LocalDatabase->blockSignals(true);    
+    ui->comboBox_SetStatus_LocalDatabase->clear();
+    ui->comboBox_SetStatus_LocalDatabase->setDisabled(true);
+    ui->comboBox_SetStatus_LocalDatabase->blockSignals(false);
+}
+
+void MainWindow::on_lineEdit_SearchLocalDatabase_textChanged(const QString &/* unused */)
 {
     ui->comboBox_SetStatus_LocalDatabase->blockSignals(true);
     ui->comboBox_SetStatus_LocalDatabase->clear();
@@ -625,15 +626,7 @@ void MainWindow::on_comboBox_SearchFor_LocalDatabase_activated(int index)
     ui->comboBox_SetStatus_LocalDatabase->blockSignals(false);
 }
 
-void MainWindow::on_lineEdit_SearchLocalDatabase_textChanged(const QString &arg1)
-{
-    ui->comboBox_SetStatus_LocalDatabase->blockSignals(true);
-    ui->comboBox_SetStatus_LocalDatabase->clear();
-    ui->comboBox_SetStatus_LocalDatabase->setDisabled(true);
-    ui->comboBox_SetStatus_LocalDatabase->blockSignals(false);
-}
-
-void MainWindow::on_comboBox_SearchForStatus_LocalDatabase_activated(int index)
+void MainWindow::on_comboBox_SearchForStatus_LocalDatabase_activated(int /* unused */)
 {
     ui->comboBox_SetStatus_LocalDatabase->blockSignals(true);
     ui->comboBox_SetStatus_LocalDatabase->clear();

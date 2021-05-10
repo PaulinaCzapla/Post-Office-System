@@ -29,7 +29,6 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-  //  void comboBoxShipmentTypeHandling(std::vector<std::string>*);
     ~MainWindow();
 
 
@@ -41,11 +40,10 @@ private slots:
     void on_pushButtonMainDatabase_clicked();
     void on_pushButtonLocalDatabase_clicked();
     void on_pushButtonRegisterParcel_clicked();
-    //void on_pushButtonConfirm_Page1_clicked();
     void on_pushButtonCancel_Page1_clicked();
     void on_pushButtonGoBack_Page2_clicked();
 
-    std::map<shipmentTypeInfo,QComboBox *> getFormDataFromComboBoxes();
+    void getFormDataFromComboBoxes();
 
     void setDefaultLineEdits();
     void clearForm();
@@ -55,7 +53,6 @@ private slots:
     void checkInvalidDataSender(std::vector<dataInfo> * );
 
     void on_pushButtonConfirm_Page2_clicked();
-    void on_pushButtonPrintLabel_clicked();
 
     void on_pushButtonGoBack_LocalDatabase_clicked();
     void on_pushButtonGoBack_MainDatabase_clicked();
@@ -126,6 +123,7 @@ private:
     Database* localDatabase;
     Database* mainDatabase;
     std::map<shipmentTypeInfo, int> indexes;
+    std::map<shipmentTypeInfo, QComboBox*> comboBoxes;
 
 };
 

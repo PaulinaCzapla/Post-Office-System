@@ -40,12 +40,6 @@ void Date::setYear(short unsigned int year_)
     this->year = year_;
 }
 
-void Date::setDateFromString(std::string date_)
-{
-    this->day = (date_[0] - '0') * 10 + (date_[1] - '0');
-    this->month = (date_[3] - '0') * 10 + (date_[4] - '0');
-    this->year = (date_[6] - '0') * 1000 + (date_[7] - '0') * 100 + (date_[8] - '0') * 10 + (date_[9] - '0');
-}
 
 std::string Date::dateToString()
 {
@@ -111,6 +105,8 @@ int Date::operator- (const Date& other) const //zwraca różnicę w dniach
             return (sum - day + other.day) * monthsSign;
         }
     }
+
+    return 0;
 }
 
 Date Date::operator+ (const int& other) const
@@ -168,11 +164,5 @@ bool Date::operator==(const Date& _date)
         return true;
     else
         return false;
-}
-
-std::ostream& operator<< (std::ostream& output, Date const& date)
-{
-
-    return output;
 }
 

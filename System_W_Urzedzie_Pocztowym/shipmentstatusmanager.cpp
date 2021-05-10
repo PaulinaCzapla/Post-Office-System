@@ -36,11 +36,6 @@ ShipmentStatusManager::ShipmentStatusManager() // działa
     file.close();
 }
 
-std::string ShipmentStatusManager::changeStatus()
-{
-    return "";
-}
-
 int ShipmentStatusManager::getStatusID(std::string status)
 {
     return statusesIDs[status];

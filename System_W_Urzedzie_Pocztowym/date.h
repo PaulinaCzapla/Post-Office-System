@@ -3,8 +3,6 @@
 #include <iostream>
 #include <string>
 #include <windows.h>
-//#include <winbase.h>
-//#include <locale>
 #include <regex>
 #include <string.h>
 
@@ -14,6 +12,10 @@ class Date
     short unsigned int month;
     short unsigned int year;
 
+    void setDay(short unsigned int);
+    void setMonth(short unsigned int);
+    void setYear(short unsigned int);
+
 public:
     Date(short unsigned int, short unsigned int, short unsigned int);
     Date(std::string);
@@ -21,15 +23,9 @@ public:
     Date(Date*);
     Date();
 
-    void setDay(short unsigned int);
-    void setMonth(short unsigned int);
-    void setYear(short unsigned int);
-    void setDateFromString(std::string);
-
     std::string dateToString();
-
     static Date* getCurrentDate();
-    bool checkString(std::string);
+
     int operator- (const Date&) const;
     Date operator+ (const int&) const;
     Date& operator=(const Date&);

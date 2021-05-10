@@ -16,11 +16,11 @@ class ShipmentStatusManager
     std::map <int, ShipmentStatus*> statuses;
     std::map <std::string, int> statusesIDs;
 
-public:
-    ShipmentStatusManager();
-    std::string changeStatus();
     int getStatusID(std::string);
     ShipmentStatus* findStatus(int);
+
+public:
+    ShipmentStatusManager();
     QStringList returnAvailableStatuses (std::string);
     ~ShipmentStatusManager();
 };

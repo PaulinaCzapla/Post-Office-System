@@ -11,7 +11,7 @@
 using namespace DataInfo;
 
 
-/* tworzony jest obiekt Shipment* currentShipment oraz obiekt  SkipmentType */
+
 void ShipmentFormWidget::createShipmentType(bool & prevLetter)
 {
     if(currentShipment)
@@ -20,7 +20,7 @@ void ShipmentFormWidget::createShipmentType(bool & prevLetter)
     {
         if(dynamic_cast<Letter*>(currentShipment)->getType())
         {
-            delete dynamic_cast<Letter*>(currentShipment)->getType(); //usuwanie starego obiektu ShipmentType
+            delete dynamic_cast<Letter*>(currentShipment)->getType();
             dynamic_cast<Letter*>(currentShipment)->setType(nullptr);
             prevLetter = true;
         }
@@ -29,7 +29,7 @@ void ShipmentFormWidget::createShipmentType(bool & prevLetter)
     {
             if(dynamic_cast<Parcel*>(currentShipment)->getType())
             {
-                delete dynamic_cast<Parcel*>(currentShipment)->getType(); //usuwanie starego obiektu ShipmentType
+                delete dynamic_cast<Parcel*>(currentShipment)->getType();
                 dynamic_cast<Parcel*>(currentShipment)->setType(nullptr);
                 prevLetter = false;
             }
@@ -43,23 +43,18 @@ ShipmentType* ShipmentFormWidget::saveComboBoxInfo(std::map<shipmentTypeInfo,QCo
     if(comboBoxes[type] == 0)
         return nullptr;
 
-    //if()
     bool prevLetter = false;
-    /* wykorzystanie RTTI */
     createShipmentType(prevLetter);
 
-    //wykorzystanie wyrażenia lambda
     auto isPriority_ = [](std::string reg){ if(reg=="priorytetowa") return true; else return false;};
 
     if(comboBoxes[type]->currentIndex() == 1)
     {
         auto isRegistered_ = [](std::string reg){ if(reg=="rejestrowana") return true; else return false;};
-qDebug() << "rozmiar: " <<comboBoxes[size]->currentText();
+
         LetterType* letterType = new LetterType(isPriority_(comboBoxes[isPriority]->currentText().toStdString()),comboBoxes[size]->currentText().toStdString()[0],
                 isRegistered_(comboBoxes[isRegistered]->currentText().toStdString()), comboBoxes[shipmentTypeInfo::country]->currentText().toStdString()); //alokacja
 
-        //warunki do modyfikacji istniejącego obiektu, albo do tworzenia nowego
-        //RTTI
         if(currentShipment && !prevLetter)
         {
             delete currentShipment;
@@ -99,10 +94,8 @@ qDebug() << "rozmiar: " <<comboBoxes[size]->currentText();
             max =100;
         }
 
-    qDebug() << "rozmiar: " <<comboBoxes[size]->currentText();
         ParcelType* parcelType = new ParcelType(isPriority_(comboBoxes[isPriority]->currentText().toStdString()),
                                                 comboBoxes[size]->currentText().toStdString()[0], max, min, comboBoxes[shipmentTypeInfo::country]->currentText().toStdString());
-        qDebug()<<"parcel type (read data from widget)";
 
         if(currentShipment && prevLetter)
         {
@@ -116,12 +109,11 @@ qDebug() << "rozmiar: " <<comboBoxes[size]->currentText();
         else
         currentShipment = new Parcel(parcelType);
 
-         qDebug()<<"return parcel type";
         return parcelType;
     }
 }
 
-//nieużywana
+
 void ShipmentFormWidget::blockAllSignals(std::map<shipmentTypeInfo, QComboBox *> & comboBoxes, bool block)
 {
     comboBoxes[type]->blockSignals(block);
@@ -226,19 +218,19 @@ void ShipmentFormWidget::loadCountriesToComboBox(QComboBox *& comboBoxCountries)
 }
 
 std::pair<std::vector<dataInfo>*, std::vector<dataInfo>*>* ShipmentFormWidget::processFormData(std::map<dataInfo, std::string> & sender,
-                                                                                                   std::map<dataInfo, std::string> & recipient, std::string recipientCountry)
+                                                                                                   std::map<dataInfo, std::string> & recipient,
+                                                                                                        std::string recipientCountry)
 {
-    auto senderInvalid = validatePersonalData(sender, "POL"); //zaalokowana pamiec
-    auto recipientInvalid = validatePersonalData(recipient, recipientCountry); // zaalokowana pamiec
+    auto senderInvalid = validatePersonalData(sender, "POL");
+    auto recipientInvalid = validatePersonalData(recipient, recipientCountry);
 
-    std::pair <std::vector<dataInfo>*, std::vector<dataInfo>*> * result = new std::pair <std::vector<dataInfo>*, std::vector<dataInfo>*>; //alokacja
+    std::pair <std::vector<dataInfo>*, std::vector<dataInfo>*> * result = new std::pair <std::vector<dataInfo>*, std::vector<dataInfo>*>;
     *result = std::make_pair(senderInvalid, recipientInvalid);
     return result;
 }
 
 std::vector<dataInfo>* ShipmentFormWidget::validatePersonalData(std::map<dataInfo, std::string> & person, std::string country)
 {
-    //wykorzystanie iteratorów i kontenerów
     std::vector<dataInfo>* invalidData = new std::vector<dataInfo>;
     std::back_insert_iterator<std::vector<dataInfo>> insert(*invalidData);
 
@@ -259,14 +251,12 @@ std::vector<dataInfo>* ShipmentFormWidget::validatePersonalData(std::map<dataInf
 void ShipmentFormWidget::insertRecord(std::map<dataInfo, std::string> & sender, std::map<dataInfo, std::string> & recipient,
                                       Database* localDatabase, Database* mainDatabase)
 {
-    //obiektów person i nie można usunąć w innym miejscu niż struktura danych
     Person* senderP = new Person(sender[city], sender[postCode],sender[street],sender[houseNumber], sender[dataInfo::country],
             sender[name],sender[phoneNumber]);
 
     Person* recipientP = new Person(recipient[city], recipient[postCode],recipient[street],recipient[houseNumber], recipient[dataInfo::country],
             recipient[name],recipient[phoneNumber]);
 
-    //shipmentType jest już ustawione
     currentShipment->setSender(senderP);
     currentShipment->setRecipient(recipientP);
     currentShipment->setPostDate(Date::getCurrentDate());
@@ -288,8 +278,17 @@ void ShipmentFormWidget::insertRecord(std::map<dataInfo, std::string> & sender, 
         mainDatabase->addNewRecord(dynamic_cast<Parcel*>(currentShipment));
     }
 
-   delete currentShipment; //usuwam kopię
+   delete currentShipment;
     currentShipment = nullptr;
+}
+
+void ShipmentFormWidget::setDefaultData(std::map<shipmentTypeInfo, QComboBox *> & comboBoxes)
+{
+    comboBoxes[isRegistered]->setCurrentIndex(0);
+    comboBoxes[isPriority]->setCurrentIndex(0);
+    comboBoxes[size]->setCurrentIndex(0);
+    comboBoxes[weight]->setCurrentIndex(0);
+    comboBoxes[shipmentTypeInfo::country]->setCurrentText("POL");
 }
 
 void ShipmentFormWidget::loadComboBoxSearchStatus(QComboBox *& combobox)
@@ -312,7 +311,7 @@ void ShipmentFormWidget::loadComboBoxSearch(QComboBox *& combobox)
     combobox->addItem("nr przesyłki");
     combobox->addItem("nr tel. odbiorcy");
     combobox->addItem("nr tel. nadawcy");
- //   combobox->addItem("status");
+
 }
 
 

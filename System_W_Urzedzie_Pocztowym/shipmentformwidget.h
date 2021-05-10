@@ -1,7 +1,6 @@
 #ifndef SHIPMENTTYPEFORMWIDGET_H
 #define SHIPMENTTYPEFORMWIDGET_H
 
-#include "mainmenuwidget.h"
 #include "shipmentprices.h"
 #include "validator.h"
 #include <map>
@@ -10,6 +9,9 @@
 #include <vector>
 #include <iterator>
 #include "sorter.h"
+#include "database.h"
+#include <QComboBox>
+#include "shipmenttypeinfo.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ShipmentFormWidget; }
@@ -30,7 +32,7 @@ public:
     std::pair<std::vector<dataInfo>*, std::vector<dataInfo>*>* processFormData(std::map<dataInfo, std::string> &, std::map<dataInfo, std::string> &, std::string);
     std::vector<dataInfo>* validatePersonalData(std::map<dataInfo, std::string> &,std::string );
     void insertRecord(std::map<dataInfo, std::string>&, std::map<dataInfo, std::string>&, Database*, Database*);
-
+    void setDefaultData(std::map<shipmentTypeInfo, QComboBox *> &);
     void loadComboBoxSearch(QComboBox*&);
     void loadComboBoxSearchStatus(QComboBox*&);
 

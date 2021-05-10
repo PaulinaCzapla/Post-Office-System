@@ -3,7 +3,7 @@
 
 #include "address.h"
 #include <string>
-//regexy do walidacji danych personalnych
+
 class Person : public Address
 {
     std::string name;
@@ -18,7 +18,7 @@ public:
     inline std::string getName() {return name;};
     Person &operator=(const Person & );
     bool operator==(const Person&);
-    //+ operatory, na pewno << i ==
+
 };
 
 #endif // PERSON_H

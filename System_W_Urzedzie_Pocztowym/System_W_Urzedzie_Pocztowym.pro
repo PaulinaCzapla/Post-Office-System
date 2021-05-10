@@ -18,7 +18,6 @@ SOURCES += \
     localdatabasewidget.cpp \
     main.cpp \
     maindatabasewidget.cpp \
-    mainmenuwidget.cpp \
     mainwindow.cpp \
     node.cpp \
     parcel.cpp \
@@ -43,7 +42,6 @@ HEADERS += \
     list.h \
     localdatabasewidget.h \
     maindatabasewidget.h \
-    mainmenuwidget.h \
     mainwindow.h \
     node.h \
     parcel.h \

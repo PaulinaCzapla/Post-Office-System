@@ -57,17 +57,14 @@ void Database::readFile(std::string filename)
         getline(file, data, ';');
         if (data == "letter")
         {
-            //czy priorytetowy
             letterType = new LetterType();
             getline(file, data, ';');
             (data == "1" ? letterType->setIsPriority(true) : letterType->setIsPriority(false));
             data.erase();
 
-            //czy rejestrowana
             getline(file, data, ';');
             (data == "1" ? letterType->setIsRegistered(true) : letterType->setIsRegistered(false));
 
-            //rozmiar
             getline(file, data, '\n');
             letterType->setSize(data[0]);
             data.erase();
@@ -80,27 +77,17 @@ void Database::readFile(std::string filename)
         {
             parcelType = new ParcelType();
 
-            //czy priorytetowy
             getline(file, data, ';');
             (data == "1" ? parcelType->setIsPriority(true) : parcelType->setIsPriority(false));
-            data.erase();
 
-            //rozmiar
             getline(file, data, ';');
             parcelType->setSize(data[0]);
-            data.erase();
 
-            // min. waga
             getline(file, data, ';');
             parcelType->setMinWeight(std::stoi(data));
-            data.erase();
 
-            //max waga
             getline(file, data, '\n');
             parcelType->setMaxWeight(std::stoi(data));
-            data.erase();
-
-
 
             element = new Parcel(parcelType);
             Parcel * element = dynamic_cast<Parcel*>(element);
@@ -129,7 +116,6 @@ void Database::readFile(std::string filename)
         getline(file, data, '\n');
         element->setID(data);
 
-        //ustawianie ostatniego ID
         if(element->stringIDtoInt(data) > lastID)
             lastID = element->stringIDtoInt(data);
 
@@ -151,13 +137,10 @@ void Database::readFile(std::string filename)
         element->setDateOfReceiptAtTheFacility(deadlineDate);
 
 
-
-        //dodawanie nowego elementu do listy
         if(typeid (*element).name() == typeid(Letter).name())
         {
              Node<Letter>* node = new Node<Letter>(*dynamic_cast<Letter*>(element));
              letters->addFront(node);
-
         }
         else if(typeid (*element).name() == typeid(Parcel).name())
         {
@@ -183,18 +166,25 @@ bool Database::isUpToDate(Date * deadline)
         return true;
 }
 
-void Database::addNewRecord(Letter * data)
+void Database::addNewRecord(Letter * data, bool newId)
 {
-    data->setID(lastID+1);
-    lastID++;
+    if(newId)
+    {
+        data->setID(lastID+1);
+        lastID++;
+    }
+
     Node<Letter>* node = new Node<Letter>(*dynamic_cast<Letter*>(data));
     letters->addFront(node);
 }
 
-void Database::addNewRecord(Parcel * data)
+void Database::addNewRecord(Parcel * data, bool newId)
 {
-    data->setID(lastID+1);
-    lastID++;
+    if(newId)
+    {
+        data->setID(lastID+1);
+        lastID++;
+    }
     Node<Parcel>* node = new Node<Parcel>(*dynamic_cast<Parcel*>(data));
     parcels->addFront(node);
 
@@ -217,17 +207,42 @@ void Database::changeStatus( int id, QString status)
     if(tmp)
     {
         tmp->getCurrentData().setStatus(status.toStdString());
+        if(status == "odeslano do nadawcy")
+        {
+            returnToRecipient(&tmp->getCurrentData());
+        }
     }
     else
     {
         auto tmp = parcels->getElement(id);
         if(tmp)
     {
-        tmp->getCurrentData().setStatus(status.toStdString());
+       tmp->getCurrentData().setStatus(status.toStdString());
+         if(status == "odeslano do nadawcy")
+        {
+               returnToRecipient(&tmp->getCurrentData());
+        }
     }
     }
 }
-       //nieprzetestowane
+
+void Database::returnToRecipient(Shipment * shipment)
+{
+    auto tmpSender = shipment->getSender();
+    shipment->setSender(shipment->getRecipient());
+    shipment->setRecipient(tmpSender);
+
+    delete shipment->getPostDate();
+    shipment->setPostDate(Date::getCurrentDate());
+
+    if(shipment->getfinalDateOfReceiptAtTheFacility())
+    {
+        delete shipment->getfinalDateOfReceiptAtTheFacility();
+        shipment->setDateOfReceiptAtTheFacility(nullptr);
+    }
+
+}
+
 void Database::writeFile()
 {
     std::fstream file;
@@ -252,8 +267,6 @@ void Database::writeFile()
                 auto recipent = headLetters->getCurrentData().getRecipient();
                 file<<recipent->getName()<<';'<<recipent->getPhoneNumber()<<';'<<recipent->getPostCode()<<';'<<recipent->getStreet()<<';'
                 <<recipent->getHouseNumber()<<';'<<recipent->getCity()<<';'<<recipent->getCountry()<<'\n';
-
-
                 file<<headLetters->getCurrentData().getPostDate()->dateToString()<<';';
 
                 if(headLetters->getCurrentData().getdateOfReceipt())
@@ -376,10 +389,14 @@ std::list<Shipment *> Database::searchByStatus(const QString & status)
     std::list<Shipment*> returnData;
 
     for(auto it = letter.begin(); it!= letter.end(); it++)
+    {
         returnData.push_back(&(*it)->getCurrentData());
+    }
 
     for(auto it = parcel.begin(); it!= parcel.end(); it++)
+    {
         returnData.push_back(&(*it)->getCurrentData());
+    }
 
     return returnData;
 }
@@ -389,8 +406,10 @@ std::list<Shipment *> Database::searchByStatus(std::list<Shipment *> & data, con
     std::list<Shipment *> returnData;
 
     for(auto it = data.begin(); it!= data.end(); it++)
+    {
         if((*it)->getStatus() == status.toStdString())
         returnData.push_back(*it);
+    }
 
     return returnData;
 }

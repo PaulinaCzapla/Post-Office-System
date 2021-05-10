@@ -18,12 +18,13 @@ class Validator
 {
     std::map<dataInfo,std::string> patterns;
     std::map<std::string, std::string> postCodePatterns;
+    void readFileValidator();
+    void readFileValidatorPostCode();
+
 public:
     Validator();
     bool validate(const std::string,const dataInfo& dataType);
     bool validate(std::string, std::string);
-    void readFileValidator();
-    void readFileValidatorPostCode();
 };
 
 #endif // VALIDATOR_H
