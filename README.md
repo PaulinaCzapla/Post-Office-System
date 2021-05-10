@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-Tutaj umieszczać projekt
+
 =======
 # Post Office System
 ### *This project is still in progress*
@@ -44,4 +43,3 @@ A post office system, designed for use by post office empoyee. It's a window app
 ### Browsing main database
 ![image](https://user-images.githubusercontent.com/56382779/117597383-c02d8300-b145-11eb-9697-231cdec51708.png)
 
->>>>>>> c2d2cd2b5cd2e89618b2c84fbe1d5bb884917be2
