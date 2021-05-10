@@ -21,22 +21,23 @@ A post office system, designed for use by post office empoyee. It's a window app
 
 
 ### Main menu
-![image](https://user-images.githubusercontent.com/56382779/114763789-7da1a200-9d63-11eb-9422-24ed3b36abf7.png)
+![image](https://user-images.githubusercontent.com/56382779/117596677-24e7de00-b144-11eb-96fe-21c530c4876f.png)
 
 
 ### Shipment type form
 
-![image](https://user-images.githubusercontent.com/56382779/114763821-898d6400-9d63-11eb-91c2-ae9bccc26387.png)
-
-![image](https://user-images.githubusercontent.com/56382779/114763856-93af6280-9d63-11eb-9dec-91605db7ff52.png)
-
-![image](https://user-images.githubusercontent.com/56382779/114763954-ade94080-9d63-11eb-8c0c-04c136f4fe5b.png) ![image](https://user-images.githubusercontent.com/56382779/114763978-b5104e80-9d63-11eb-9ef5-a04101120c02.png)
-
+![image](https://user-images.githubusercontent.com/56382779/117596792-6ed0c400-b144-11eb-86e2-7b8f1f07334e.png)
+![image](https://user-images.githubusercontent.com/56382779/117596943-cbcc7a00-b144-11eb-81d9-c287dd66b2b4.png)
+![image](https://user-images.githubusercontent.com/56382779/117596927-c2431200-b144-11eb-9be3-b00ebd27d7c4.png)
+![image](https://user-images.githubusercontent.com/56382779/117596903-b5262300-b144-11eb-8ae7-15d2907f6afb.png)
 
 
 ### Personal data form
-![image](https://user-images.githubusercontent.com/56382779/114763924-a4f86f00-9d63-11eb-91c5-d582478a33c2.png)
+![image](https://user-images.githubusercontent.com/56382779/117597221-6e84f880-b145-11eb-9c23-2dd58df83bec.png)
+![image](https://user-images.githubusercontent.com/56382779/117597208-69c04480-b145-11eb-9418-4f837946987d.png)
+![image](https://user-images.githubusercontent.com/56382779/117597362-b572ee00-b145-11eb-942b-39b93146ebc4.png)
+
 
 ### Browsing main database
-![image](https://user-images.githubusercontent.com/56382779/114764091-d1ac8680-9d63-11eb-90ff-e04621783d49.png)
+![image](https://user-images.githubusercontent.com/56382779/117597383-c02d8300-b145-11eb-9697-231cdec51708.png)
 
